@@ -10,7 +10,6 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Article.belongsTo(models.Section, { foreignKey: 'sectionId' })
       Article.belongsTo(models.Code, { foreignKey: 'codeId' })
       Article.belongsToMany(models.Element, { through: models.ArticleElement, foreignKey: 'elementId', as: 'ArticleElements' })
     }
@@ -18,7 +17,6 @@ module.exports = (sequelize, DataTypes) => {
   Article.init({
     content: DataTypes.TEXT,
     articleNo: DataTypes.INTEGER,
-    sectionId: DataTypes.INTEGER,
     codeId: DataTypes.INTEGER
   }, {
     sequelize,

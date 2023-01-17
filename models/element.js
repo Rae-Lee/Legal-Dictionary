@@ -12,7 +12,9 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Element.belongsToMany(models.Quote, { through: models.QuoteElement, foreignKey: 'quoteId', as: 'ElementQuotes' })
       Element.belongsToMany(models.Article, { through: models.ArticleElement, foreignKey: 'articleId', as: 'ElementArticles' })
-      Element.belongsTo(models.Field, { foreignKey: 'fieldId' })
+      Element.hasMany(models.Post, { foreignKey: 'elementId' })
+      Element.hasMany(models.Note, { foreignKey: 'elementId' })
+      Element.hasMany(models.Favorite, { foreignKey: 'elementId' })
     }
   }
   Element.init({
