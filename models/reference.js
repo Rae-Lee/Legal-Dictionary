@@ -11,11 +11,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Reference.hasMany(models.Quote, { foreignKey: 'referenceId' })
+      Reference.belongsTo(models.Field, { foreignKey: 'fieldId' })
     }
   }
   Reference.init({
     name: DataTypes.STRING,
-    content: DataTypes.TEXT
+    content: DataTypes.TEXT,
+    fieldId: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Reference',

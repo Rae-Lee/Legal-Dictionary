@@ -9,10 +9,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      field_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER
-      },
       verdit: {
         allowNull: false,
         type: Sequelize.STRING

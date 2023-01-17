@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Field.hasMany(models.Quote, { foreignKey: 'fieldId' })
+      Field.hasMany(models.Reference, { foreignKey: 'fieldId' })
     }
   }
   Field.init({
