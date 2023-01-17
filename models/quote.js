@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Quote.belongsToMany(models.Element, { through: models.QuoteElement, foreignKey: 'elementId', as: 'QuotedElements' })
+      Quote.belongsToMany(models.Element, { through: models.Quote_element, foreignKey: 'elementId', as: 'QuotedElements' })
       Quote.belongsTo(models.Reference, { foreignKey: 'referenceId' })
     }
   }

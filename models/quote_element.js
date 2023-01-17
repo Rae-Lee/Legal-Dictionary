@@ -13,14 +13,14 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  QuoteElement.init({
+  Quote_element.init({
     quoteId: DataTypes.INTEGER,
     elementId: DataTypes.INTEGER
   }, {
     sequelize,
-    modelName: 'QuoteElement',
+    modelName: 'Quote_element',
     tableName: 'Quote_elements',
     underscored: true
   });
-  return QuoteElement;
+  return Quote_element;
 };

@@ -11,12 +11,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Article.belongsTo(models.Code, { foreignKey: 'codeId' })
-      Article.belongsToMany(models.Element, { through: models.ArticleElement, foreignKey: 'elementId', as: 'ArticleElements' })
+      Article.belongsToMany(models.Element, { through: models.Article_element, foreignKey: 'elementId', as: 'ArticleElements' })
     }
   }
   Article.init({
     content: DataTypes.TEXT,
-    articleNo: DataTypes.INTEGER,
+    articleNo: DataTypes.STRING,
     codeId: DataTypes.INTEGER
   }, {
     sequelize,

@@ -13,14 +13,14 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  ArticleElement.init({
+  Article_element.init({
     articleId: DataTypes.INTEGER,
     elementId: DataTypes.INTEGER
   }, {
     sequelize,
-    modelName: 'ArticleElement',
+    modelName: 'Article_element',
     tableName: 'Article_elements',
     underscored: true
   });
-  return ArticleElement;
+  return Article_element;
 };
