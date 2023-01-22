@@ -27,6 +27,7 @@ module.exports = {
           updated_at: new Date()
         })
       }
+      // 放入資料庫
       await queryInterface.bulkInsert('Articles', result, {})
     }
   },
