@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Code.init({
-    name: DataTypes.STRING
+    name: DataTypes.STRING,
+    isAbandon: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'Code', 

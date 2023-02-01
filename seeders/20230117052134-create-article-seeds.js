@@ -10,7 +10,6 @@ module.exports = {
     for (const l of law) {
       // 尋找法規在資料庫中的id
       const code = await Code.findOne({ where: { name: l.LawName } })
-
       // 刪除法規中編章節項次
       const content = l.LawArticles.filter(c =>
         c.ArticleType === 'A'
@@ -22,7 +21,7 @@ module.exports = {
         result.push({
           article_no: number.trim(),
           content: a.ArticleContent,
-          code_id: code.toJSON().id,
+          code_id: code.id,
           created_at: new Date(),
           updated_at: new Date()
         })
@@ -33,11 +32,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    /**
-     * Add commands to revert seed here.
-     *
-     * Example:
-     * await queryInterface.bulkDelete('People', null, {});
-     */
+    await queryInterface.bulkDelete('Articles', null, {})
   }
 }

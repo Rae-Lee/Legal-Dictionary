@@ -13,6 +13,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
+      is_abandon: {
+        allowNull: false,
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE
