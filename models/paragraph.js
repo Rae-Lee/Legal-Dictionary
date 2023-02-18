@@ -3,24 +3,25 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Quote_element extends Model {
+  class Paragraph extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Paragraph.hasMany(models.Paragraph_article, { foreignKey: 'paragraphId' })
+      Paragraph.hasMany(models.Quote, { foreignKey: 'paragraphId' })
     }
   }
-  Quote_element.init({
-    quoteId: DataTypes.INTEGER,
-    elementId: DataTypes.INTEGER
+  Paragraph.init({
+    verdit: DataTypes.STRING,
+    content: DataTypes.TEXT
   }, {
     sequelize,
-    modelName: 'Quote_element',
-    tableName: 'Quote_elements',
+    modelName: 'Paragraph',
+    tableName: 'Paragraphs',
     underscored: true
   });
-  return Quote_element;
+  return Paragraph;
 };

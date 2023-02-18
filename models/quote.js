@@ -10,14 +10,14 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Quote.belongsToMany(models.Element, { through: models.Quote_element, foreignKey: 'elementId', as: 'QuotedElements' })
       Quote.belongsTo(models.Reference, { foreignKey: 'referenceId' })
+      Quote.belongsTo(models.Paragraph, { foreignKey: 'paragraphId' })
     }
   }
   Quote.init({
-    verdit: DataTypes.STRING,
-    content: DataTypes.TEXT,
-    referenceId: DataTypes.STRING
+    referenceId: DataTypes.INTEGER,
+    paragraphId: DataTypes.INTEGER,
+    content: DataTypes.TEXT
   }, {
     sequelize,
     modelName: 'Quote',

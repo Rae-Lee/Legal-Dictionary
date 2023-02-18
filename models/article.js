@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Article.belongsTo(models.Code, { foreignKey: 'codeId' })
-      Article.belongsToMany(models.Element, { through: models.Article_element, foreignKey: 'elementId', as: 'ArticleElements' })
+      Article.hasMany(models.Paragraph_article, { foreignKey: 'articleId' })
     }
   }
   Article.init({

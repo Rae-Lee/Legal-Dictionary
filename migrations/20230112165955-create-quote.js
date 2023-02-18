@@ -2,20 +2,24 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Quote_elements', {
+    await queryInterface.createTable('Quotes', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      quote_id: {
+      paragraph_id: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      element_id: {
+      reference_id: {
         allowNull: false,
         type: Sequelize.INTEGER
+      },
+      content: {
+        allowNull: false,
+        type: Sequelize.TEXT
       },
       created_at: {
         allowNull: false,
@@ -28,6 +32,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Quote_elements');
+    await queryInterface.dropTable('Quotes');
   }
 };

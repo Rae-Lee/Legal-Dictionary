@@ -4,16 +4,60 @@ const db = require('../models')
 const { Code, Article } = db
 // 請求全國法規資料庫的最新訊息頁面
 const updateLaw = async (updateDate) => {
-  let pageTotal = 1
-  let pageNumber = 1
   const link = []
   const updateDateArray = updateDate.split('-')
-  try { // 抓取所有更新頁面連結
+  // 抓取所有更新頁面連結
+  const isGet = await getAllLink(link, updateDateArray)
+  // 更新法規資料
+  if (isGet && link.length !== 0) {
+    try {
+      await Promise.all(
+        link.map(
+          async (link) => {
+            // 請求更新內容頁面
+            const $ = loadPage(link)
+            const title = $('h2').text()
+            // 制定法規
+            if (title.includes('制定')) {
+              const code = {}
+              const article = []
+              // 新增法規
+              await createCode(title, code)
+              // 整理並新增法條
+              await processArticle($, code, article)
+              await Article.bulkCreate(article)
+            }
+            // 廢止法規
+            else if (title.includes('廢止')) {
+              await deleteCode(title)
+            }
+            // 增訂、刪除並修正法規
+            else {
+              await correctCode($, title)
+            }
+          })
+      )
+    } catch (error) {
+      console.log(error)
+    }
+    // 更新時間
+    const today = new Date()
+    const year = today.getFullYear() - 1911
+    const month = (today.getMonth() + 1) >= 10 ? (today.getMonth() + 1) : ('0' + (today.getMonth() + 1))
+    const date = today.getDate() < 10 ? ('0' + today.getDate()) : today.getDate()
+    updateDate = `${year}-${month}-${date}`
+  }
+}
+// -----------function-------------------
+
+// 建立連結陣列
+const getAllLink = async (link, updateDateArray) => {
+  let pageTotal = 1
+  let pageNumber = 1
+  try {
     while (link.length === 20 * (pageNumber - 1) && pageTotal !== (pageNumber - 1)) {
       // 請求頁面
-      const response = await fetch(`https://law.moj.gov.tw/News/NewsList.aspx?type=l&page=${pageNumber}&psize=20`)
-      const pageText = await response.text()
-      const $ = cheerio.load(pageText)
+      const $ = await loadPage(`https://law.moj.gov.tw/News/NewsList.aspx?type=l&page=${pageNumber}&psize=20`)
       // 抓取頁次數目
       const pageInfo = $('li.pageinfo').text()
       const indexStart = pageInfo.indexOf('/') + 1
@@ -23,52 +67,22 @@ const updateLaw = async (updateDate) => {
       await getPageLink($, link, updateDateArray)
       pageNumber++
     }
+    return true
   } catch (error) {
     console.log(error)
+    return false
   }
-  // 更新法規資料
-  try {
-    await Promise.all(
-      link.map(
-        async (link) => {
-          // 請求更新內容頁面
-          const response = await fetch(link)
-          const pageText = await response.text()
-          const $ = cheerio.load(pageText)
-          const title = $('h2').text()
-          // 制定法規
-          if (title.includes('制定')) {
-            const code = {}
-            const article = []
-            // 新增法規
-            await createCode(title, code)
-            // 整理並新增法條
-            await processArticle($, code, article)
-            await Article.bulkCreate(article)
-          }
-          // // 廢止法規
-          else if (title.includes('廢止')) {
-            await deleteCode(title)
-          }
-          // 增訂、刪除並修正法規
-          else {
-            await correctCode($, title)
-          }
-        })
-    )
-  } catch (error) {
-    console.log(error)
-  }
-  // 更新時間
-  const today = new Date()
-  const year = today.getFullYear() - 1911
-  const month = (today.getMonth() + 1) >= 10 ? (today.getMonth() + 1) : ('0' + (today.getMonth() + 1))
-  const date = today.getDate() < 10 ? ('0' + today.getDate()) : today.getDate()
-  updateDate = `${year}-${month}-${date}`
+}
+// 載入頁面
+const loadPage = async (link) => {
+  const response = await fetch(link)
+  const pageText = await response.text()
+  const $ = cheerio.load(pageText)
+  return $
 }
 // 抓取單頁上次更新時間以後的連結
 const getPageLink = async ($, link, updateDateArray) => {
-  await $('.table tbody tr td').each((i, e) => {
+  $('.table tbody tr td').each((i, e) => {
     if ($(e).text() === '法律') {
       const date = $(e).prev().text()
       const dateArray = date.split('-')
@@ -104,10 +118,12 @@ const processArticle = async ($, code, article) => {
     if (i === articleNo.length - 1) {
       for (let j = articleIndex[i] + 1; j <= array.length - 1; j++) {
         content += array[j]
+        content += '\r\n'
       }
     }
     for (let j = articleIndex[i] + 1; j < articleIndex[i + 1]; j++) {
       content += array[j]
+      content += '\r\n'
     }
     article.push({
       articleNo: articleNo[i],
