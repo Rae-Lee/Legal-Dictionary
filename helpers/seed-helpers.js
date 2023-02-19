@@ -168,12 +168,16 @@ const inputSingleVerdit = async (driver, judXpath, judYear, judCase, judNo) => {
 }
 // 取得頁面上的判決名稱及連結
 const getLink = async (links, driver) => {
-  let pageTotal = 1
+  // 取得頁數總數
+  const pageElement = await driver.findElement(By.xpath('//*[@id="plPager"]/span[1]'))
+  const pageContent = await pageElement.getAttribute('textContent')
+  const indexStart = pageContent.indexOf('/') + 1
+  const indexEnd = pageContent.indexOf('頁')
+  const pageTotal = pageContent.slice(indexStart, indexEnd)
   let pageNumber = 1
   try {
-    while (pageTotal !== (pageNumber - 1)) {
+    while (pageTotal !== pageNumber) {
       await driver.sleep(3000)
-
       const linkNames = await driver.findElements(By.id('hlTitle'))
       for (l of linkNames) {
         const linkName = await l.getAttribute('textContent')
@@ -182,12 +186,6 @@ const getLink = async (links, driver) => {
           links.push({ linkName, link })
         }
       }
-      // 取得頁數總數
-      const pageElement = await driver.findElement(By.xpath('//*[@id="plPager"]/span[1]'))
-      const pageContent = await pageElement.getAttribute('textContent')
-      const indexStart = pageContent.indexOf('/') + 1
-      const indexEnd = pageContent.indexOf('頁')
-      pageTotal = pageContent.slice(indexStart, indexEnd)
       // 跳下一頁
       const nextBtn = await driver.wait(until.elementLocated(By.id('hlNext')), 5000)
       nextBtn.click()

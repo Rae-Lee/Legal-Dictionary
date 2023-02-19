@@ -6,8 +6,8 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     // 爬範圍內所有刑事裁判書中引用的段落
     const judType = '刑事'
-    const startDate = '111-1-1'
-    const endDate = '111-12-31'
+    const startDate = '111-1-2'
+    const endDate = '111-1-3'
     const paragraphs = await getParagraph(judType, startDate, endDate)
     paragraphs.map(p => {
       return {

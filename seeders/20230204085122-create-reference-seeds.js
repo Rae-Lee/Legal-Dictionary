@@ -24,6 +24,10 @@ module.exports = {
        field = await Field.findOne({
         where: { name: '民事判決' }
        })
+      }else if (result.name.includes('行政判決')) {
+        field = await Field.findOne({
+          where: { name: '行政判決' }
+        })
       }else if(result.name.includes('台上大') && result.name.includes('刑事')){
         field = await Field.findOne({
           where: { name: '大法庭刑事裁定' }
