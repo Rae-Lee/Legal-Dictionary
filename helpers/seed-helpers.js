@@ -3,59 +3,65 @@ const cheerio = require('cheerio')
 const webdriver = require('selenium-webdriver')
 const { Builder, Browser, By, until } = webdriver
 // 爬範圍內所有裁判書中引用的段落
-const getParagraph = async (jud_type, startDate, endDate) => {
-  // const driver = await openDriver()
-  // if (driver) {
-  //   // 打開裁判書查詢網頁
-  //  await driver.get('https://judgment.judicial.gov.tw/FJUD/Default_AD.aspx')
-  //  //  輸入搜尋條件
-  //   const judType = '刑事'
-  //   const startDate = 111-1-1
-  //   const endDate = 111-1-1
-  //   await inputVerdit(driver, judType, startDate, endDate)
-  //   const isOpen = await submitSearchPage(driver)
-  //   if (isOpen) {
-  //     // 爬裁判書的名稱及連結
-  //     const links = []
-  //     await driver.sleep(3000)
-  //     await driver.switchTo().frame(driver.findElement(By.name('iframe-data')))
-  //     await getLink(links, driver)
-  //     driver.quit()
-  //     if (links.length) {
-  //       // 打開連結並爬判決書內容
-  //       for (const link of links) {
-  //         const $ = await loadPage(link.link)
-  //       }
-  //     }
-  //   }
-  // }
+const judType = '刑事'
+const startDate = '111-1-1'
+const endDate = '111-1-1'
+const getParagraph = async (judType, startDate, endDate) => {
   const paragraphs = []
-  const $ = await loadPage('https://judgment.judicial.gov.tw/FJUD/data.aspx?ty=JD&id=TCDM%2c111%2c%e8%a8%b4%2c1407%2c20221230%2c1&ot=in')
-  const verdit = await getVerdit($)
-  if (verdit) {
-    // 篩選出引用段落
-    const paragraphSliced = await sliceParagraph(verdit)
-    if (paragraphSliced.length) {
-      for (const p of paragraphSliced) {
-        const content = p.slice(0, p.lastIndexOf('參照'))
-        paragraphs.push(content)
-        // const referenceName = content.slice(content.lastIndexOf('（') + 1, content.indexOf('意旨'))// 被引用的裁判書名稱
-        // const referenceContent = content.slice(0, content.lastIndexOf('（'))// 被引用的內容
+  const driver = await openDriver()
+  if (driver) {
+    // 打開裁判書查詢網頁
+    await driver.get('https://judgment.judicial.gov.tw/FJUD/Default_AD.aspx')
+    await driver.sleep(3000)
+    //  輸入搜尋條件
+    const judXpath = processVerditType(judType)
+    const s_date = startDate.split('-')
+    const e_date = endDate.split('-')
+    await inputVerdit(driver, judXpath, s_date, e_date)
+    const isOpen = await submitSearchPage(driver)
+    if (isOpen) {
+      // 爬裁判書的名稱及連結
+      const links = []
+      await driver.sleep(3000)
+      await driver.switchTo().frame(driver.findElement(By.name('iframe-data')))
+      await getLink(links, driver)
+      driver.quit()
+      if (links.length) {
+        // 打開連結並爬判決書內容
+        for (const link of links) {
+          const $ = await loadPage(link.link)
+          const verdit = await getVerdit($)
+          if (verdit) {
+            // 篩選出引用段落
+            const paragraphSliced = await sliceParagraph(verdit)
+            if (paragraphSliced.length) {
+              for (const p of paragraphSliced) {
+                const content = p.split('參照）。')
+                const result = content.filter(c => c !== '')
+                for (const r of result) {
+                  paragraphs.push({
+                    verditName: link.linkName,
+                    content: r
+                  })
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
   return paragraphs
 }
 // 爬被引用的裁判書內容
-const getReference = async (referenceName) => {
-  let result
+const getReference = async (judType, referenceName) => {
+  const result = []
   const driver = await openDriver()
   if (driver) {
     // 打開裁判書查詢網頁
     await driver.get('https://judgment.judicial.gov.tw/FJUD/Default_AD.aspx')
     await driver.sleep(3000)
     const { judYear, judCase, judNo } = processVerditName(referenceName)
-    const judType = referenceName.substr(-4, 2)
     const judXpath = processVerditType(judType)
     await inputSingleVerdit(driver, judXpath, judYear, judCase, judNo)
     const isOpen = await submitSearchPage(driver)
@@ -70,7 +76,11 @@ const getReference = async (referenceName) => {
       if (link) {
         const $ = await loadPage(link)
         const content = $('.tab_content').html().toString()
-        result = content.slice(0, content.lastIndexOf('日') + 1)
+        const contentSliced = content.slice(0, content.lastIndexOf('日') + 1)
+        result.push({
+          content: contentSliced,
+          name: linkName
+        })
       }
     }
   }
@@ -124,21 +134,19 @@ const processVerditType = (judType) => {
   return judXpath
 }
 // 輸入要爬蟲的案件
-const inputVerdit = async (driver, judType, startDate, endDate) => {
+const inputVerdit = async (driver, judXpath, startDate, endDate) => {
   try {
-    const { judXpath } = processVerditType(judType)
+    // 勾選裁判類型
     const category = await driver.wait(until.elementLocated(By.xpath(judXpath)), 5000)
     category.click()
     // 輸入裁判期間
-    const s_date = startDate.split('-')
-    const e_date = endDate.split('-')
     const dateStart = await driver.wait(until.elementLocated(By.name('dy1')), 5000)
-    dateStart.sendKeys(s_date[0])
-    await driver.findElement(By.name('dm1')).sendKeys('111')
-    await driver.findElement(By.name('dd1')).sendKeys(s_date[2])
-    await driver.findElement(By.name('dy2')).sendKeys(e_date[0])
-    await driver.findElement(By.name('dm2')).sendKeys(e_date[1])
-    await driver.findElement(By.name('dd2')).sendKeys(e_date[2])
+    dateStart.sendKeys(startDate[0])
+    await driver.findElement(By.name('dm1')).sendKeys(startDate[1])
+    await driver.findElement(By.name('dd1')).sendKeys(startDate[2])
+    await driver.findElement(By.name('dy2')).sendKeys(endDate[0])
+    await driver.findElement(By.name('dm2')).sendKeys(endDate[1])
+    await driver.findElement(By.name('dd2')).sendKeys(endDate[2])
   } catch (err) {
     console.log(err)
   }
@@ -217,6 +225,4 @@ const sliceParagraph = async (verdit) => {
     console.log(err)
   }
 }
-getReference('最高法院110年度台上大字第5765號刑事裁定')
-
 module.exports = { getParagraph, getReference }
