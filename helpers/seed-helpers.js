@@ -3,9 +3,6 @@ const cheerio = require('cheerio')
 const webdriver = require('selenium-webdriver')
 const { Builder, Browser, By, until } = webdriver
 // 爬範圍內所有裁判書中引用的段落
-const judType = '刑事'
-const startDate = '111-1-1'
-const endDate = '111-1-1'
 const getParagraph = async (judType, startDate, endDate) => {
   const paragraphs = []
   const driver = await openDriver()
@@ -20,8 +17,8 @@ const getParagraph = async (judType, startDate, endDate) => {
     await inputVerdit(driver, judXpath, s_date, e_date)
     const isOpen = await submitSearchPage(driver)
     if (isOpen) {
-      // 爬裁判書的名稱及連結
       const links = []
+      // 爬裁判書的名稱及連結
       await driver.sleep(3000)
       await driver.switchTo().frame(driver.findElement(By.name('iframe-data')))
       await getLink(links, driver)
@@ -33,19 +30,7 @@ const getParagraph = async (judType, startDate, endDate) => {
           const verdit = await getVerdit($)
           if (verdit) {
             // 篩選出引用段落
-            const paragraphSliced = await sliceParagraph(verdit)
-            if (paragraphSliced.length) {
-              for (const p of paragraphSliced) {
-                const content = p.split('參照）。')
-                const result = content.filter(c => c !== '')
-                for (const r of result) {
-                  paragraphs.push({
-                    verditName: link.linkName,
-                    content: r
-                  })
-                }
-              }
-            }
+            await sliceParagraph(link, paragraphs, verdit)
           }
         }
       }
@@ -179,10 +164,10 @@ const getLink = async (links, driver) => {
     while (pageTotal !== pageNumber) {
       await driver.sleep(3000)
       const linkNames = await driver.findElements(By.id('hlTitle'))
-      for (l of linkNames) {
-        const linkName = await l.getAttribute('textContent')
-        const link = await l.getAttribute('href')
-        if (linkName.includes('判決') && linkName.includes('訴字')) {
+      for (const name of linkNames) {
+        const linkName = await name.getAttribute('textContent')
+        const link = await name.getAttribute('href')
+        if (linkName.includes('判決') && linkName.includes('訴')) {
           links.push({ linkName, link })
         }
       }
@@ -192,7 +177,6 @@ const getLink = async (links, driver) => {
       pageNumber++
     }
   } catch (err) {
-    console.log(err)
   }
 }
 // 載入頁面
@@ -209,18 +193,29 @@ const loadPage = async (link) => {
 const getVerdit = async ($) => {
   try {
     const result = $('.tab_content').html()
-    const verdit = result.toString().split('</div>')
+    const verdit = result.split('</div>')
     return verdit
   } catch (err) {
     console.log(err)
   }
 }
-const sliceParagraph = async (verdit) => {
+const sliceParagraph = async (link, paragraphs, verdit) => {
   try {
     const paragraphSliced = verdit.filter(v => v.toString().indexOf('參照') !== -1)
-    return paragraphSliced
+    for (const p of paragraphSliced) {
+      const result = p.split('參照')
+      result.splice((result.length - 1), 1)
+      for (const r of result) {
+        const content = r.replace(/^[^\u4e00-\u9fa5]+/, '')
+        paragraphs.push({
+          verditName: link.linkName,
+          content
+        })
+      }
+    }
   } catch (err) {
     console.log(err)
   }
 }
 module.exports = { getParagraph, getReference }
+

@@ -9,7 +9,8 @@ module.exports = {
     const startDate = '111-1-2'
     const endDate = '111-1-3'
     const paragraphs = await getParagraph(judType, startDate, endDate)
-    paragraphs.map(p => {
+   
+    const result = paragraphs.map(p => {
       return {
         verdit: p.verditName,
         content: p.content,
@@ -18,7 +19,7 @@ module.exports = {
       }
     })
     // 放入資料庫
-    await queryInterface.bulkInsert('Paragraphs', paragraphs, {}) 
+    await queryInterface.bulkInsert('Paragraphs', result, {})
   },
 
   async down (queryInterface, Sequelize) {
