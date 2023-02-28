@@ -2,6 +2,8 @@ const fetch = require('node-fetch')
 const cheerio = require('cheerio')
 const webdriver = require('selenium-webdriver')
 const { Builder, Browser, By, until } = webdriver
+const db = require('../models')
+const { Reference } = db
 // 爬範圍內所有裁判書中引用的段落
 const getParagraph = async (judType, startDate, endDate) => {
   const paragraphs = []
@@ -40,7 +42,7 @@ const getParagraph = async (judType, startDate, endDate) => {
 }
 // 爬被引用的裁判書內容
 const getReference = async (judType, referenceName) => {
-  const result = []
+  let result = {}
   const driver = await openDriver()
   if (driver) {
     // 打開裁判書查詢網頁
@@ -54,18 +56,31 @@ const getReference = async (judType, referenceName) => {
       // 爬裁判書的名稱及連結
       await driver.sleep(3000)
       await driver.switchTo().frame(driver.findElement(By.name('iframe-data')))
-      const linkName = await driver.findElement(By.id('hlTitle'))
-      const link = await linkName.getAttribute('href')
+      const name = await driver.findElement(By.id('hlTitle'))
+      const linkName = await name.getAttribute('textContent')
+      const link = await name.getAttribute('href')
+      const brief = await driver.findElement(By.className('tdCut'))
+      const briefContent = await brief.getAttribute('textContent')
       driver.quit()
       // 打開連結並爬判決書內容
       if (link) {
-        const $ = await loadPage(link)
-        const content = $('.tab_content').html().toString()
-        const contentSliced = content.slice(0, content.lastIndexOf('日') + 1)
-        result.push({
-          content: contentSliced,
-          name: linkName
-        })
+        // 排除已經爬過的裁判書
+        const isCrawled = await Reference.findOne({ where: { name: linkName } })
+        if (!isCrawled) {
+          let contentSliced
+          // 排除無文字檔的裁判書
+          if (briefContent === '全文為掃描檔') {
+            contentSliced = '裁判書因年代久遠，故無文字檔'
+          } else {
+            const $ = await loadPage(link)
+            const content = $('.tab_content').html()
+            contentSliced = content.slice(0, content.lastIndexOf('日') + 1)
+          }
+          result.content = contentSliced
+          result.name = linkName
+        } else {
+          result = {}
+        }
       }
     }
   }
@@ -85,7 +100,7 @@ const openDriver = async () => {
 const submitSearchPage = async (driver) => {
   try {
     // 送出查詢
-    const submitBtn = await driver.wait(until.elementLocated(By.name('ctl00$cp_content$btnQry')), 5000)
+    const submitBtn = await driver.wait(until.elementLocated(By.name('ctl00$cp_content$btnQry')), 3000)
     submitBtn.click()
     // 檢查是否成功跳轉
     await driver.wait(until.elementLocated(By.xpath('//*[@id="form1"]/div[3]/div/div[1]/div')), 5000)
@@ -96,9 +111,14 @@ const submitSearchPage = async (driver) => {
   }
 }
 const processVerditName = (referenceName) => {
-  const judYear = referenceName.slice(referenceName.indexOf('院') + 1, referenceName.indexOf('年'))
-  const judCase = referenceName.slice(referenceName.indexOf('度') + 1, referenceName.indexOf('字'))
-  const judNo = referenceName.slice(referenceName.indexOf('第') + 1, referenceName.indexOf('號'))
+  const judYear = referenceName.match(/\d+/g)[0]
+  let judCase
+  if (referenceName.includes('台上大')) {
+    judCase = '台上大'
+  } else {
+    judCase = '台上'
+  }
+  const judNo = referenceName.match(/\d+/g)[1]
   return { judYear, judCase, judNo }
 }
 //
@@ -122,10 +142,10 @@ const processVerditType = (judType) => {
 const inputVerdit = async (driver, judXpath, startDate, endDate) => {
   try {
     // 勾選裁判類型
-    const category = await driver.wait(until.elementLocated(By.xpath(judXpath)), 5000)
+    const category = await driver.wait(until.elementLocated(By.xpath(judXpath)), 3000)
     category.click()
     // 輸入裁判期間
-    const dateStart = await driver.wait(until.elementLocated(By.name('dy1')), 5000)
+    const dateStart = await driver.wait(until.elementLocated(By.name('dy1')), 3000)
     dateStart.sendKeys(startDate[0])
     await driver.findElement(By.name('dm1')).sendKeys(startDate[1])
     await driver.findElement(By.name('dd1')).sendKeys(startDate[2])
@@ -139,7 +159,7 @@ const inputVerdit = async (driver, judXpath, startDate, endDate) => {
 // 輸入被引用的案件
 const inputSingleVerdit = async (driver, judXpath, judYear, judCase, judNo) => {
   try {
-    const category = await driver.wait(until.elementLocated(By.xpath(judXpath)), 5000)
+    const category = await driver.wait(until.elementLocated(By.xpath(judXpath)), 3000)
     category.click()
     // 輸入裁判字號
     const judgeYear = await driver.wait(until.elementLocated(By.name('jud_year')), 5000)
@@ -203,9 +223,11 @@ const sliceParagraph = async (link, paragraphs, verdit) => {
   try {
     const paragraphSliced = verdit.filter(v => v.toString().indexOf('參照') !== -1)
     for (const p of paragraphSliced) {
-      const result = p.split('參照')
-      result.splice((result.length - 1), 1)
-      for (const r of result) {
+      // 篩選有引用裁判書名稱及「參照」詞彙的段落
+      const results = p.split('參照')
+      results.splice((results.length - 1), 1)
+      const resultFiltered = results.filter(r => r.search(/\d{2,3}[\u4e00-\u9fa5]{5,7}\d+[\u4e00-\u9fa5]/g) !== -1)
+      for (const r of resultFiltered) {
         const content = r.replace(/^[^\u4e00-\u9fa5]+/, '')
         paragraphs.push({
           verditName: link.linkName,
@@ -218,4 +240,3 @@ const sliceParagraph = async (link, paragraphs, verdit) => {
   }
 }
 module.exports = { getParagraph, getReference }
-
