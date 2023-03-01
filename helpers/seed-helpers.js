@@ -42,7 +42,7 @@ const getParagraph = async (judType, startDate, endDate) => {
 }
 // 爬被引用的裁判書內容
 const getReference = async (judType, referenceName) => {
-  let result = {}
+  const result = {}
   const driver = await openDriver()
   if (driver) {
     // 打開裁判書查詢網頁
@@ -64,29 +64,23 @@ const getReference = async (judType, referenceName) => {
       driver.quit()
       // 打開連結並爬判決書內容
       if (link) {
-        // 排除已經爬過的裁判書
-        const isCrawled = await Reference.findOne({ where: { name: linkName } })
-        if (!isCrawled) {
-          let contentSliced
-          // 排除無文字檔的裁判書
-          if (briefContent === '全文為掃描檔') {
-            contentSliced = '裁判書因年代久遠，故無文字檔'
-          } else {
-            const $ = await loadPage(link)
-            const content = $('.tab_content').html()
-            contentSliced = content.slice(0, content.lastIndexOf('日') + 1)
-          }
-          result.content = contentSliced
-          result.name = linkName
+        let contentSliced
+        // 排除無文字檔的裁判書
+        if (briefContent === '全文為掃描檔') {
+          contentSliced = '裁判書因年代久遠，故無文字檔'
         } else {
-          result = {}
+          const $ = await loadPage(link)
+          const content = $('.tab_content').html()
+          contentSliced = content.slice(0, content.lastIndexOf('日') + 1)
         }
+        result.content = contentSliced
+        result.name = linkName
       }
     }
   }
   return result
 }
-// -----------function---------------------
+// -----------function--------------------
 const openDriver = async () => {
   try {
     const driver = await new Builder().forBrowser(Browser.CHROME).build()

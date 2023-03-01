@@ -16,7 +16,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   Reference.init({
     name: DataTypes.STRING,
-    content: DataTypes.TEXT,
+    content: DataTypes.TEXT('long'),
+    quote: DataTypes.TEXT,
     fieldId: DataTypes.INTEGER
   }, {
     sequelize,

@@ -17,6 +17,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.TEXT
       },
+      quote: {
+        allowNull: false,
+        type: Sequelize.TEXT
+      },
       field_id: {
         allowNull: false,
         type: Sequelize.INTEGER
