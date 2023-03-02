@@ -16,8 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Quote.init({
     referenceId: DataTypes.INTEGER,
-    paragraphId: DataTypes.INTEGER,
-    content: DataTypes.TEXT
+    paragraphId: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Quote',
