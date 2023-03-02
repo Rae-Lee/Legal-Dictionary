@@ -14,12 +14,14 @@ module.exports = {
         const name = await getReferenceName(referenceName, judType)
         if (name) {
           const reference = await Reference.findOne({ where: { name } })
-          result.push({
-            paragraph_id: paragraph.id,
-            reference_id: reference.id,
-            created_at: new Date(),
-            updated_at: new Date()
-          })
+          if (reference) {
+            result.push({
+              paragraph_id: paragraph.id,
+              reference_id: reference.id,
+              created_at: new Date(),
+              updated_at: new Date()
+            })
+          }
         }
       }
     }

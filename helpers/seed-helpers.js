@@ -79,7 +79,6 @@ const getReference = async (judType, referenceName) => {
         }
       }
       driver.quit()
-     
       result.name = referenceName
       result.content = contentSliced
     }
@@ -96,7 +95,6 @@ const getReferenceName = async (referenceName, judType) => {
   } else if ((referenceName.includes('台上') || referenceName.includes('臺上')) && judYear >= 39) {
     name = `最高法院 ${judYear} 年度 台上 字第 ${judNo} 號${judType}判決`
   }
-  console.log(name)
   return name
 }
 // 被引用的裁判書分類
@@ -123,7 +121,6 @@ const getReferenceField = async (result) => {
       where: { name: '大法庭民事裁定' }
     })
   }
-  console.log(field)
   return field
 }
 // 被引用的段落
@@ -131,18 +128,14 @@ const getReferenceQuote = async (paragraph, result) => {
   let quote = paragraph.content
   if (result.content !== '裁判書因年代久遠，故無文字檔' && result.content !== '本件為依法不得公開或須去識別化後公開之案件') {
     const endIndex = paragraph.content.lastIndexOf('（')// 被引用的段落結尾
-    console.log(endIndex)
     const resultContent = result.content.replace(/[^\u4e00-\u9fa5]/g, '')
     const paragraphSplits = paragraph.content.split(/[\uff08|\uff09|\u3008|	\u3009|\u300a|\u300b|\u300c\u300d|\u300e|\u300f|\ufe43|\ufe44|\u3014|\u3015|\u2026|\u2014|\uff5e|\ufe4f|	\u3001|\u3010|\u3011|\uff0c|\u3002|\uff1f|\uff01|\uff1a|\uff1b|\u201c|\u201d|\u2018|\u2019]/)
     for (const paragraphSplit of paragraphSplits) {
       // 查找被引用裁判書內容與引用段落相同之處
-      console.log(paragraphSplit)
       const htmlStartSliced = paragraphSplit.replace(/<abbr[^\u4e00-\u9fa5]+>/g, '')
       const htmlEndSliced = htmlStartSliced.replaceAll('</abbr>', '')
-      console.log(htmlEndSliced)
       if (resultContent.includes(htmlEndSliced)) {
         const startIndex = paragraph.content.search(paragraphSplit)// 被引用的段落開頭
-        console.log(startIndex)
         quote = paragraph.content.slice(startIndex, endIndex) + '。'
         break
       }
