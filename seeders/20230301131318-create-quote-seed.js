@@ -5,7 +5,7 @@ const { getReferenceName } = require('../helpers/seed-helpers')
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    const result = []
+    let result = []
     const paragraphs = await Paragraph.findAll()
     const judType = '刑事'
     for (const paragraph of paragraphs) {
@@ -26,6 +26,7 @@ module.exports = {
       }
     }
     await queryInterface.bulkInsert('Quotes', result, {})
+    result = null
   },
 
   async down (queryInterface, Sequelize) {

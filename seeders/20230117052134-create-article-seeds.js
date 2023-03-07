@@ -15,7 +15,7 @@ module.exports = {
         c.ArticleType === 'A'
       )
       // 資料整理到result陣列中
-      const result = []
+      let result = []
       for (const a of content) {
         const number = a.ArticleNo.includes('第') ? a.ArticleNo.slice(1, a.ArticleNo.length - 1) : a.ArticleNo
         result.push({
@@ -28,6 +28,7 @@ module.exports = {
       }
       // 放入資料庫
       await queryInterface.bulkInsert('Articles', result, {})
+      result = null
     }
   },
 

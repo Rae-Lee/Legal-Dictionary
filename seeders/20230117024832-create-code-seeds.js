@@ -1,6 +1,6 @@
 'use strict'
 const law = require('../ChLaw.json')
-const result = law.Laws.map(l => {
+let result = law.Laws.map(l => {
   if (l.LawAbandonNote === '廢') {
     return {
       name: l.LawName,
@@ -19,6 +19,7 @@ const result = law.Laws.map(l => {
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert('Codes', result, {})
+    result = null
   },
 
   async down (queryInterface, Sequelize) {

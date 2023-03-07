@@ -3,7 +3,7 @@ const cheerio = require('cheerio')
 const webdriver = require('selenium-webdriver')
 const { Builder, Browser, By, until } = webdriver
 const db = require('../models')
-const { Field } = db
+const { Field, Code, Article } = db
 // 爬範圍內所有裁判書中引用的段落
 const getParagraph = async (judType, startDate, endDate) => {
   const paragraphs = []
@@ -19,7 +19,7 @@ const getParagraph = async (judType, startDate, endDate) => {
     await inputVerdit(driver, judXpath, s_date, e_date)
     const isOpen = await submitSearchPage(driver)
     if (isOpen) {
-      const links = []
+      let links = []
       // 爬裁判書的名稱及連結
       await driver.sleep(3000)
       await driver.switchTo().frame(driver.findElement(By.name('iframe-data')))
@@ -36,8 +36,10 @@ const getParagraph = async (judType, startDate, endDate) => {
           }
         }
       }
+      links = null
     }
   }
+
   return paragraphs
 }
 // 爬被引用的裁判書內容
@@ -142,6 +144,43 @@ const getReferenceQuote = async (paragraph, result) => {
     }
   }
   return quote
+}
+// 尋找段落中的法條
+const getArticleId = async (paragraph) => {
+  const articleId = []
+  // 找出條號
+  const content = paragraph.content.replace(/\s/g, '')
+  const numbers = content.match(/\u7b2c{1}\d+\u689D{1}/g)
+  if (numbers) {
+    // 找出法條名稱
+    const articleParagraph = content.split(/(?<=\u6cd5)|(?<=\u689d\u4f8b)/g)
+    const codes = await Code.findAll()
+    for (const number of numbers) {
+      for (let i = 0; i <= articleParagraph.length - 1; i++) {
+        if (articleParagraph[i].includes(number)) {
+          let articleName
+          let index = i - 1
+          while (articleName === undefined && index >= 0) {
+            articleName = codes.find(code => {
+              const name = code.name.replace('中華民國', '')
+              return articleParagraph[index].includes(name)
+            })
+            index--
+          }
+          if (articleName) {
+            const articleNo = number.match(/\d+/)[0]
+            const codeId = articleName.id
+            // 找出法條id
+            const article = await Article.findOne({ where: { articleNo, codeId } })
+            if (!articleId.includes(article.id)) {
+              articleId.push(article.id)
+            }
+          }
+        }
+      }
+    }
+  }
+  return articleId
 }
 //  -----------function--------------------
 const openDriver = async () => {
@@ -296,4 +335,4 @@ const sliceParagraph = async (link, paragraphs, verdit) => {
     console.log(err)
   }
 }
-module.exports = { getParagraph, getReference, getReferenceName, getReferenceField, getReferenceQuote }
+module.exports = { getParagraph, getReference, getReferenceName, getReferenceField, getReferenceQuote, getArticleId }
