@@ -4,15 +4,15 @@ const db = require('../models')
 const { Code, Article } = db
 // 請求全國法規資料庫的最新訊息頁面
 const updateLaw = async (updateDate) => {
-  const link = []
+  const links = []
   const updateDateArray = updateDate.split('-')
   // 抓取所有更新頁面連結
-  const isGet = await getAllLink(link, updateDateArray)
+  const isGet = await getAllLink(links, updateDateArray)
   // 更新法規資料
-  if (isGet && link.length !== 0) {
+  if (isGet && links.length !== 0) {
     try {
       await Promise.all(
-        link.map(
+        links.map(
           async (link) => {
             // 請求更新內容頁面
             const $ = loadPage(link)
@@ -25,15 +25,15 @@ const updateLaw = async (updateDate) => {
               await createCode(title, code)
               // 整理並新增法條
               await processArticle($, code, article)
-              await Article.bulkCreate(article)
+              return await Article.bulkCreate(article)
             }
             // 廢止法規
             else if (title.includes('廢止')) {
-              await deleteCode(title)
+              return await deleteCode(title)
             }
             // 增訂、刪除並修正法規
             else {
-              await correctCode($, title)
+              return await correctCode($, title)
             }
           })
       )
@@ -51,11 +51,11 @@ const updateLaw = async (updateDate) => {
 // -----------function-------------------
 
 // 建立連結陣列
-const getAllLink = async (link, updateDateArray) => {
+const getAllLink = async (links, updateDateArray) => {
   let pageTotal = 1
   let pageNumber = 1
   try {
-    while (link.length === 20 * (pageNumber - 1) && pageTotal !== (pageNumber - 1)) {
+    while (links.length === 20 * (pageNumber - 1) && pageTotal !== (pageNumber - 1)) {
       // 請求頁面
       const $ = await loadPage(`https://law.moj.gov.tw/News/NewsList.aspx?type=l&page=${pageNumber}&psize=20`)
       // 抓取頁次數目
@@ -64,7 +64,7 @@ const getAllLink = async (link, updateDateArray) => {
       const indexEnd = pageInfo.indexOf('顯示')
       pageTotal = pageInfo.slice(indexStart, indexEnd)
       // 抓取更新頁面連結
-      await getPageLink($, link, updateDateArray)
+      await getPageLink($, links, updateDateArray)
       pageNumber++
     }
     return true
@@ -75,19 +75,19 @@ const getAllLink = async (link, updateDateArray) => {
 }
 // 載入頁面
 const loadPage = async (link) => {
-  const response = await fetch(link)
+  const response = await fetch(link, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/ 537.36(KHTML, like Gecko) Chrome/ 57.0.2987.133 Safari / 537.36' } })
   const pageText = await response.text()
   const $ = cheerio.load(pageText)
   return $
 }
 // 抓取單頁上次更新時間以後的連結
-const getPageLink = async ($, link, updateDateArray) => {
+const getPageLink = async ($, links, updateDateArray) => {
   $('.table tbody tr td').each((i, e) => {
     if ($(e).text() === '法律') {
       const date = $(e).prev().text()
       const dateArray = date.split('-')
       if (dateArray[0] > updateDateArray[0] || (dateArray[0] === updateDateArray[0] && dateArray[1] > updateDateArray[1]) || (dateArray[0] === updateDateArray[0] && dateArray[1] === updateDateArray[1] && dateArray[2] >= updateDateArray[2])) {
-        link.push('https://law.moj.gov.tw/News/' + $(e).next().find('a').attr('href'))
+        links.push('https://law.moj.gov.tw/News/' + $(e).next().find('a').attr('href'))
       }
     }
   })
