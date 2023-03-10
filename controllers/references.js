@@ -13,7 +13,6 @@ const referencesController = {
         status: 200,
         data: reference
       })
-      return res.send('hello')
     } catch (err) {
       console.log(err)
     }
