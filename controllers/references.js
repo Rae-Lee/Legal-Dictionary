@@ -9,10 +9,17 @@ const referencesController = {
         nest: true,
         raw: true
       })
-      res.json({
-        status: 200,
-        data: reference
-      })
+      if (!reference) {
+        res.json({
+          status: 404,
+          message: '本段落尚未有完整裁判書內容!'
+        })
+      } else {
+        res.json({
+          status: 200,
+          data: reference
+        })
+      }
     } catch (err) {
       console.log(err)
     }
