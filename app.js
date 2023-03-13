@@ -6,6 +6,8 @@ if (process.env.NODE_ENV !== 'production') {
 const port = process.env.PORT || 3000
 const { updateLaw } = require('./helpers/lawUpdate-helpers')
 const routes = require('./routes')
+app.use(express.urlencoded({ extended: true}))
+
 // 更新法規異動
 // let updateDate = '112-01-06'// json檔建立時間
 // updateLaw(updateDate)

@@ -1,5 +1,5 @@
 const db = require('../models')
-const { Element, sequelize } = db
+const { Element, Search, sequelize } = db
 const keywordsController = {
   getKeyword: async (req, res, next) => {
     try {
@@ -85,6 +85,32 @@ const keywordsController = {
         status: 200,
         data: { keywords }
       })
+    } catch (err) {
+      console.log(err)
+    }
+  },
+  addKeyword: async (req, res, next) => {
+    try {
+      const { name } = req.body
+      if (!name) {
+        res.json({
+          status: 400,
+          message: '搜尋欄不可空白！'
+        })
+      } else {
+        // 尋找資料庫中是否已經有此關鍵字
+        let keyword = await Element.findOne({ where: { name } })
+        // 若沒有就新增一個
+        if (!keyword) {
+          keyword = await Element.create({ name })
+        }
+        // 儲存搜尋紀錄
+        await Search.create({ elementId: keyword.id })
+        res.json({
+          status: 200,
+          data: keyword
+        })
+      }
     } catch (err) {
       console.log(err)
     }
