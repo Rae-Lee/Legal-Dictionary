@@ -10,7 +10,7 @@ const keywordsController = {
       if (!keyword) {
         res.json({
           status: 404,
-          message: '沒有相關的內容，請試試其他關鍵字!'
+          message: '找不到相關的內容，請試試其他關鍵字!'
         })
       } else {
         res.json({
@@ -36,7 +36,7 @@ const keywordsController = {
       if (!references.length) {
         res.json({
           status: 404,
-          message: '沒有相關裁判書!'
+          message: '找不到相關裁判書!'
         })
       } else {
         res.json({
@@ -62,7 +62,7 @@ const keywordsController = {
       if (!articles.length) {
         res.json({
           status: 404,
-          message: '沒有相關條文!'
+          message: '找不到相關條文!'
         })
       } else {
         res.json({
@@ -95,7 +95,7 @@ const keywordsController = {
       if (!name) {
         res.json({
           status: 400,
-          message: '搜尋欄不可空白！'
+          message: ['搜尋欄不可空白！']
         })
       } else {
         // 尋找資料庫中是否已經有此關鍵字
