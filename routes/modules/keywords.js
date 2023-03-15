@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const keywordsController = require('../../controllers/keywords')
+const { validatedKeyword } = require('../../middleware/validator')
 router.get('/top', keywordsController.getTopKeywords)
-router.get('/:id/references', keywordsController.getReferences)
-router.get('/:id/articles', keywordsController.getArticles)
-router.get('/:id', keywordsController.getKeyword)
+router.get('/:id/references', validatedKeyword, keywordsController.getReferences)
+router.get('/:id/articles', validatedKeyword, keywordsController.getArticles)
+router.get('/:id', validatedKeyword, keywordsController.getKeyword)
 router.post('/', keywordsController.addKeyword)
 module.exports = router

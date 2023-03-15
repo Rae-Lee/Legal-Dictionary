@@ -7,17 +7,10 @@ const keywordsController = {
       const keyword = await Element.findByPk(id, {
         raw: true
       })
-      if (!keyword) {
-        res.json({
-          status: 404,
-          message: '找不到相關的內容，請試試其他關鍵字!'
-        })
-      } else {
-        res.json({
-          status: 200,
-          data: keyword
-        })
-      }
+      res.json({
+        status: 200,
+        data: keyword
+      })
     } catch (err) {
       console.log(err)
     }
