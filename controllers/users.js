@@ -55,17 +55,32 @@ const usersController = {
   },
   login: async (req, res, next) => {
     try {
-      const user = req.user.toJSON()
-      // 驗證過後就簽發token
-      const token = jwt.sign(user, process.env.JWT_SECRET_KEY, { expiresIn: '30d' })
-      delete user.password // 不回傳密碼
-      res.json({
-        status: 200,
-        data: {
-          token,
-          user
-        }
-      })
+      // 驗證
+      const { account, password } = req.body
+      const user = await User.findOne({ where: { account } })
+      if (!user) {
+        res.json({
+          status: 400,
+          message: ['此帳號不存在！']
+        })
+      } else if (!bcrypt.compareSync(password, user.password)) {
+        res.json({
+          status: 400,
+          message: ['帳號或密碼錯誤！']
+        })
+      } else {
+        // 驗證過後就簽發token
+        const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET_KEY, { expiresIn: '30d' })
+        delete user.password // 不回傳密碼
+        res.json({
+          status: 200,
+          message: '登入成功!',
+          data: {
+            token,
+            user: user.toJSON()
+          }
+        })
+      }
     } catch (err) {
       console.log(err)
     }
