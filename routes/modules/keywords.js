@@ -1,10 +1,21 @@
 const express = require('express')
 const router = express.Router()
 const keywordsController = require('../../controllers/keywords')
+const likesController = require('../../controllers/likes')
 const { validatedKeyword } = require('../../middleware/validator')
+const { authenticated } = require('../../middleware/authenticate')
+// 瀏覽關鍵字內容
 router.get('/top', keywordsController.getTopKeywords)
 router.get('/:id/references', validatedKeyword, keywordsController.getReferences)
 router.get('/:id/articles', validatedKeyword, keywordsController.getArticles)
 router.get('/:id', validatedKeyword, keywordsController.getKeyword)
+
+// 收藏
+router.post('/:id/likes', authenticated, validatedKeyword, likesController.addLike)
+router.delete('/:id/likes', authenticated, validatedKeyword, likesController.deleteLike)
+// 筆記
+router.post('/:id/notes', authenticated, validatedKeyword, keywordsController.addNote)
+
+// 新增關鍵字
 router.post('/', keywordsController.addKeyword)
 module.exports = router
