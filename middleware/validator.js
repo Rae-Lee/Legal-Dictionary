@@ -1,6 +1,7 @@
 const db = require('../models')
-const { Element } = db
+const { Element, Note } = db
 const validator = {
+  // 查找該關鍵字
   validatedKeyword: async (req, res, next) => {
     const id = req.params.id
     const element = await Element.findByPk(id)
@@ -12,5 +13,17 @@ const validator = {
     }
     next()
   }
+    // 查找該筆記
+    validatedNote: async (req, res, next) => {
+      const id = req.params.id
+      const note = await Note.findByPk(id)
+      if (!note) {
+        return res.json({
+          status: 404,
+          message: '該筆記已不存在!'
+        })
+      }
+      next()
+    }
 }
 module.exports = validator

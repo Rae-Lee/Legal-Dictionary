@@ -101,7 +101,7 @@ const keywordsController = {
         await Search.create({ elementId: keyword.id })
         res.json({
           status: 200,
-          data: keyword
+          data: keyword.toJSON()
         })
       }
     } catch (err) {

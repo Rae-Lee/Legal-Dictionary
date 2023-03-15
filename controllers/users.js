@@ -46,7 +46,7 @@ const usersController = {
         res.json({
           status: 200,
           message: '帳號已成功註冊',
-          data: user
+          data: user.toJSON()
         })
       }
     } catch (err) {
