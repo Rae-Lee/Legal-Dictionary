@@ -21,7 +21,7 @@ const referencesController = {
         })
       }
     } catch (err) {
-      console.log(err)
+      next(err)
     }
   }
 }

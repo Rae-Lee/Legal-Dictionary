@@ -16,7 +16,7 @@ const notesController = {
         data: deleteNote
       })
     } catch (err) {
-      console.log(err)
+      next(err)
     }
   },
   editNote: async (req, res, next) => {
@@ -47,7 +47,7 @@ const notesController = {
         })
       }
     } catch (err) {
-      console.log(err)
+      next(err)
     }
   },
   addNote: async (req, res, next) => {
@@ -75,7 +75,7 @@ const notesController = {
         })
       }
     } catch (err) {
-      console.log(err)
+      next(err)
     }
   }
 }

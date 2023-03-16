@@ -13,7 +13,7 @@ const keywordsController = {
         data: keyword
       })
     } catch (err) {
-      console.log(err)
+      next(err)
     }
   },
   getReferences: async (req, res, next) => {
@@ -39,7 +39,7 @@ const keywordsController = {
         })
       }
     } catch (err) {
-      console.log(err)
+      next(err)
     }
   },
   getArticles: async (req, res, next) => {
@@ -65,7 +65,7 @@ const keywordsController = {
         })
       }
     } catch (err) {
-      console.log(err)
+      next(err)
     }
   },
   getNotes: async (req, res, next) => {
@@ -94,7 +94,7 @@ const keywordsController = {
         })
       }
     } catch (err) {
-      console.log(err)
+      next(err)
     }
   },
   getTopKeywords: async (req, res, next) => {
@@ -109,7 +109,7 @@ const keywordsController = {
         data: { keywords }
       })
     } catch (err) {
-      console.log(err)
+      next(err)
     }
   },
   addKeyword: async (req, res, next) => {
@@ -135,7 +135,7 @@ const keywordsController = {
         })
       }
     } catch (err) {
-      console.log(err)
+      next(err)
     }
   }
 }

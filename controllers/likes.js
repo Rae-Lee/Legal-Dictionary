@@ -15,7 +15,7 @@ const likesController = {
         data: like.toJSON()
       })
     } catch (err) {
-      console.log(err)
+      next(err)
     }
   },
   deleteLike: async (req, res, next) => {
@@ -33,7 +33,7 @@ const likesController = {
         data: unlike
       })
     } catch (err) {
-      console.log(err)
+      next(err)
     }
   }
 }
