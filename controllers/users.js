@@ -3,6 +3,8 @@ const { User, Like, Element, Note } = db
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { getUser } = require('../helpers/auth-helpers')
+const countTotalPage = require('../helpers/pagination-helpers')
+const dataPerPage = 10 // 一頁出現10筆資料
 
 const usersController = {
   register: async (req, res, next) => {
@@ -59,13 +61,17 @@ const usersController = {
   },
   getLikes: async (req, res, next) => {
     try {
-      const likes = await Like.findAll({
+      const currentPage = req.query.page || 1
+      const dataOffset = (currentPage - 1) * 10
+      const likes = await Like.findAndCountAll({
         where: { userId: getUser(req).id },
         include: Element,
         order: ['createdAt', 'DESC'],
+        limit: dataPerPage,
+        offset: dataOffset,
         raw: true
       })
-      if (!likes.length) {
+      if (!likes.count.length) {
         res.json({
           status: 404,
           message: '尚未有收藏的關鍵字!'
@@ -73,7 +79,8 @@ const usersController = {
       } else {
         res.json({
           status: 200,
-          data: { likes }
+          data: { likes: likes.rows },
+          pagination: { currentPage, totalPage: countTotalPage(likes.count) }
         })
       }
     } catch (err) {
@@ -82,13 +89,17 @@ const usersController = {
   },
   getNotes: async (req, res, next) => {
     try {
-      const notes = await Note.findAll({
+      const currentPage = req.query.page || 1
+      const dataOffset = (currentPage - 1) * 10
+      const notes = await Note.findAndCountAll({
         where: { userId: getUser(req).id },
         include: Element,
         order: ['createdAt', 'DESC'],
+        limit: dataPerPage,
+        offset: dataOffset,
         raw: true
       })
-      if (!notes.length) {
+      if (!notes.count.length) {
         res.json({
           status: 404,
           message: '尚未有任何筆記!'
@@ -96,7 +107,8 @@ const usersController = {
       } else {
         res.json({
           status: 200,
-          data: { notes }
+          data: { notes: notes.rows },
+          pagination: { currentPage, totalPage: countTotalPage(notes.count) }
         })
       }
     } catch (err) {

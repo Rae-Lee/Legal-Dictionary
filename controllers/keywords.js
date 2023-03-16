@@ -1,6 +1,8 @@
 const db = require('../models')
 const { Element, Search, Note, sequelize } = db
 const dayjs = require('dayjs')
+const countTotalPage = require('../helpers/pagination-helpers')
+const dataPerPage = 10 // 一頁出現10筆資料
 const keywordsController = {
   getKeyword: async (req, res, next) => {
     try {
@@ -18,10 +20,12 @@ const keywordsController = {
   },
   getReferences: async (req, res, next) => {
     try {
+      const currentPage = req.query.page || 1
+      const dataOffset = (currentPage - 1) * 10
       const id = req.params.id
       const element = await Element.findByPk(id)
       const references = await sequelize.query(
-        'SELECT `References`.*,`Fields`.`name` AS `Field.name`,COUNT(`Quotes`.`reference_id`) AS `count` FROM `Paragraphs` JOIN `Quotes` ON `Paragraphs`.`id` = `Quotes`.`paragraph_id` JOIN `References` ON `Quotes`.`reference_id` = `References`.`id` JOIN `Fields` ON `Fields`.`id` = `References`.`field_id` WHERE `Paragraphs`.`content` LIKE $keyword GROUP BY `Quotes`.`reference_id` ORDER BY `count` DESC;', {
+        'SELECT `References`.*,`Fields`.`name` AS `Field.name`,COUNT(`Quotes`.`reference_id`) AS `count` FROM `Paragraphs` JOIN `Quotes` ON `Paragraphs`.`id` = `Quotes`.`paragraph_id` JOIN `References` ON `Quotes`.`reference_id` = `References`.`id` JOIN `Fields` ON `Fields`.`id` = `References`.`field_id` WHERE `Paragraphs`.`content` LIKE $keyword GROUP BY `Quotes`.`reference_id` ORDER BY `count` DESC ;', {
           bind: { keyword: `%${element.name}%` },
           raw: true,
           nest: true
@@ -33,9 +37,11 @@ const keywordsController = {
           message: '找不到相關裁判書!'
         })
       } else {
+        const slicedReferences = references.slice(dataOffset, dataOffset + dataPerPage)
         res.json({
           status: 200,
-          data: { references }
+          data: { references: slicedReferences },
+          pagination: { currentPage, totalPage: countTotalPage(references.length)}
         })
       }
     } catch (err) {
@@ -44,6 +50,8 @@ const keywordsController = {
   },
   getArticles: async (req, res, next) => {
     try {
+      const currentPage = req.query.page || 1
+      const dataOffset = (currentPage - 1) * 10
       const id = req.params.id
       const element = await Element.findByPk(id)
       const articles = await sequelize.query(
@@ -59,9 +67,11 @@ const keywordsController = {
           message: '找不到相關條文!'
         })
       } else {
+        const slicedArticles = articles.slice(dataOffset, dataOffset + dataPerPage)
         res.json({
           status: 200,
-          data: { articles }
+          data: { articles: slicedArticles },
+          pagination: { currentPage, totalPage: countTotalPage(articles.length) }
         })
       }
     } catch (err) {
@@ -70,19 +80,23 @@ const keywordsController = {
   },
   getNotes: async (req, res, next) => {
     try {
+      const currentPage = req.query.page || 1
+      const dataOffset = (currentPage - 1) * 10
       const id = req.params.id
-      const notes = await Note.findAll({
+      const notes = await Note.findAndCountAll({
         where: { elementId: id },
         order: ['createdAt', 'DESC'],
+        limit: dataPerPage,
+        offset: dataOffset,
         raw: true
       })
-      if (!notes.length) {
+      if (!notes.count) {
         res.json({
           status: 404,
           message: '尚未有筆記，請新增!'
         })
       } else {
-        const results = notes.map((note) => {
+        const results = notes.rows.map((note) => {
           return {
             ...note,
             relativeTime: dayjs(note.createdAt)
@@ -90,7 +104,8 @@ const keywordsController = {
         })
         res.json({
           status: 200,
-          data: { notes: results }
+          data: { notes: results },
+          pagination: { currentPage, totalPage: countTotalPage(notes.count) }
         })
       }
     } catch (err) {

@@ -1,3 +1,3 @@
-const status = require('http-status')
-
-console.log(status['500_MESSAGE'])
+const answer = [1,2,3]
+const a = answer.splice(0,1)
+console.log(a)
