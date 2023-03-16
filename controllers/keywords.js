@@ -1,5 +1,6 @@
 const db = require('../models')
-const { Element, Search, sequelize } = db
+const { Element, Search, Note, sequelize } = db
+const dayjs = require('dayjs')
 const keywordsController = {
   getKeyword: async (req, res, next) => {
     try {
@@ -67,6 +68,35 @@ const keywordsController = {
       console.log(err)
     }
   },
+  getNotes: async (req, res, next) => {
+    try {
+      const id = req.params.id
+      const notes = await Note.findAll({
+        where: { elementId: id },
+        order: ['createdAt', 'DESC'],
+        raw: true
+      })
+      if (!notes.length) {
+        res.json({
+          status: 404,
+          message: '尚未有筆記，請新增!'
+        })
+      } else {
+        const results = notes.map((note) => {
+          return {
+            ...note,
+            relativeTime: dayjs(note.createdAt)
+          }
+        })
+        res.json({
+          status: 200,
+          data: { notes: results }
+        })
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  },
   getTopKeywords: async (req, res, next) => {
     try {
       const keywords = await sequelize.query(
@@ -92,10 +122,10 @@ const keywordsController = {
         })
       } else {
         // 尋找資料庫中是否已經有此關鍵字
-        let keyword = await Element.findOne({ where: { name } })
+        let keyword = await Element.findOne({ where: { name: name.trim() } })
         // 若沒有就新增一個
         if (!keyword) {
-          keyword = await Element.create({ name })
+          keyword = await Element.create({ name: name.trim() })
         }
         // 儲存搜尋紀錄
         await Search.create({ elementId: keyword.id })
