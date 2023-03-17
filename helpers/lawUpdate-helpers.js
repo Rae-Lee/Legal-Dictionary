@@ -15,14 +15,13 @@ const updateLaw = async (updateDate) => {
         links.map(
           async (link) => {
             // 請求更新內容頁面
-            const $ = loadPage(link)
+            const $ = await loadPage(link)
             const title = $('h2').text()
             // 制定法規
             if (title.includes('制定')) {
-              const code = {}
               const article = []
               // 新增法規
-              await createCode(title, code)
+              const code = await createCode(title)
               // 整理並新增法條
               await processArticle($, code, article)
               return await Article.bulkCreate(article)
@@ -48,6 +47,7 @@ const updateLaw = async (updateDate) => {
     updateDate = `${year}-${month}-${date}`
   }
 }
+
 // -----------function-------------------
 
 // 建立連結陣列
@@ -93,12 +93,12 @@ const getPageLink = async ($, links, updateDateArray) => {
   })
 }
 // 新增法規
-const createCode = async (title, code) => {
+const createCode = async (title) => {
   const indexStart = title.indexOf('制定') + 2
   const indexEnd = title.includes('法') ? title.indexOf('法') + 1 : title.indexOf('條例') + 2
   const name = title.slice(indexStart, indexEnd)
-  const codeName = await Code.create({ name })
-  code.content = codeName
+  const code = await Code.create({ name })
+  return code
 }
 // 處理法條
 const processArticle = async ($, code, article) => {
@@ -127,7 +127,7 @@ const processArticle = async ($, code, article) => {
     }
     article.push({
       articleNo: articleNo[i],
-      codeId: code.content.id,
+      codeId: code.id,
       content
     })
   }
