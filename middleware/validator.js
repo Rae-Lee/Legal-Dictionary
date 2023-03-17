@@ -5,7 +5,7 @@ const validator = {
   // 查找該關鍵字是否在資料庫
   validatedKeyword: async (req, res, next) => {
     try {
-      const id = req.params.id
+      const id = Number(req.params.id)
       const element = await Element.findByPk(id)
       if (!element) {
         return res.json({
@@ -21,7 +21,7 @@ const validator = {
   // 查找該筆記是否在資料庫
   validatedNote: async (req, res, next) => {
     try {
-      const id = req.params.id
+      const id = Number(req.params.id)
       const note = await Note.findByPk(id)
       if (!note) {
         return res.json({
@@ -61,7 +61,7 @@ const validator = {
         }
       }
       if (message.length) {
-        res.json({
+        return res.json({
           status: 400,
           message
         })
@@ -97,7 +97,7 @@ const validator = {
         }
       }
       if (message.length) {
-        res.json({
+        return res.json({
           status: 400,
           message
         })

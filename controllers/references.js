@@ -10,12 +10,12 @@ const referencesController = {
         raw: true
       })
       if (!reference) {
-        res.json({
+        return res.json({
           status: 404,
           message: '本段落尚未有完整裁判書內容!'
         })
       } else {
-        res.json({
+        return res.json({
           status: 200,
           data: reference
         })

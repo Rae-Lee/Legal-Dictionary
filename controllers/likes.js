@@ -10,7 +10,7 @@ const likesController = {
         userId: getUser.id,
         elementId: keyword.id
       })
-      res.json({
+      return res.json({
         status: 200,
         data: like.toJSON()
       })
@@ -28,7 +28,7 @@ const likesController = {
         nest: true
       })
       const unlike = await like.destroy()
-      res.json({
+      return res.json({
         status: 200,
         data: unlike
       })

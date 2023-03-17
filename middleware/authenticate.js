@@ -2,27 +2,13 @@ const passport = require('passport')
 const { getUser } = require('../helpers/auth-helpers')
 const db = require('../models')
 const { Note } = db
+ // 身分token驗證
+const authenticated = passport.authenticate('jwt', { session: false })
 const authenticate = {
-  // 身分token驗證
-  authenticated: (req, res, next) => {
-    try {
-      passport.authenticate('jwt', { session: false }, (err, user) => {
-        if (err || !user) {
-          return res.json({
-            status: 401,
-            message: '請重新登入！'
-          })
-        }
-        next()
-      })
-    } catch (err) {
-      throw new Error(err)
-    }
-  },
   // 瀏覽或編輯個人檔案的權限
   authenticatedProfile: (req, res, next) => {
     try {
-      const id = req.params.id
+      const id = Number(req.params.id)
       if (getUser(req).id !== id) {
         return res.json({
           status: 403,
@@ -37,7 +23,7 @@ const authenticate = {
   // 編輯筆記的權限
   authenticatedNote: async (req, res, next) => {
     try {
-      const id = req.params.id
+      const id = Number(req.params.id)
       const note = await Note.findByPk(id)
       if (getUser(req).id !== note.userId) {
         return res.json({
@@ -51,4 +37,5 @@ const authenticate = {
     }
   }
 }
-module.exports = authenticate
+
+module.exports = { authenticate, authenticated }

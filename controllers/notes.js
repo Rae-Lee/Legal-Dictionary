@@ -1,6 +1,8 @@
 const db = require('../models')
 const { Note } = db
 const dayjs = require('dayjs')
+const relativeTime = require('dayjs/plugin/relativeTime')
+dayjs.extend(relativeTime)
 const { getUser } = require('../helpers/auth-helpers')
 const notesController = {
   deleteNote: async (req, res, next) => {
@@ -11,7 +13,7 @@ const notesController = {
         nest: true
       })
       const deleteNote = await note.destroy()
-      res.json({
+      return res.json({
         status: 200,
         data: deleteNote
       })
@@ -24,7 +26,7 @@ const notesController = {
       const id = req.params.id
       const content = req.body.content
       if (!content) {
-        res.json({
+        return res.json({
           status: 400,
           message: ['筆記內容不可空白！']
         })
@@ -39,9 +41,9 @@ const notesController = {
         })
         const editedNote = {
           ...editNote,
-          relativeTime: dayjs(editNote.createdAt)
+          relativeTime: dayjs(editNote.createdAt).fromNow()
         }
-        res.json({
+        return res.json({
           status: 200,
           data: editedNote
         })
@@ -55,7 +57,7 @@ const notesController = {
       const id = req.params.id
       const content = req.body.content
       if (!content) {
-        res.json({
+        return res.json({
           status: 400,
           message: ['筆記內容不可空白！']
         })
@@ -67,9 +69,9 @@ const notesController = {
         })
         const createdNote = {
           ...note,
-          relativeTime: dayjs(note.createdAt)
+          relativeTime: dayjs(note.createdAt).fromNow()
         }
-        res.json({
+        return res.json({
           status: 200,
           data: createdNote
         })

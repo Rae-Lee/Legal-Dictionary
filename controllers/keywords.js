@@ -1,7 +1,10 @@
 const db = require('../models')
 const { Element, Search, Note, sequelize } = db
 const dayjs = require('dayjs')
+const relativeTime = require('dayjs/plugin/relativeTime')
+dayjs.extend(relativeTime)
 const countTotalPage = require('../helpers/pagination-helpers')
+const { getUser } = require('../helpers/auth-helpers')
 const dataPerPage = 10 // 一頁出現10筆資料
 const keywordsController = {
   getKeyword: async (req, res, next) => {
@@ -10,7 +13,7 @@ const keywordsController = {
       const keyword = await Element.findByPk(id, {
         raw: true
       })
-      res.json({
+      return res.json({
         status: 200,
         data: keyword
       })
@@ -20,7 +23,7 @@ const keywordsController = {
   },
   getReferences: async (req, res, next) => {
     try {
-      const currentPage = req.query.page || 1
+      const currentPage = Number(req.query.page) || 1
       const dataOffset = (currentPage - 1) * 10
       const id = req.params.id
       const element = await Element.findByPk(id)
@@ -32,16 +35,16 @@ const keywordsController = {
         }
       )
       if (!references.length) {
-        res.json({
+        return res.json({
           status: 404,
           message: '找不到相關裁判書!'
         })
       } else {
         const slicedReferences = references.slice(dataOffset, dataOffset + dataPerPage)
-        res.json({
+        return res.json({
           status: 200,
           data: { references: slicedReferences },
-          pagination: { currentPage, totalPage: countTotalPage(references.length)}
+          pagination: { currentPage, totalPage: countTotalPage(references.length) }
         })
       }
     } catch (err) {
@@ -62,13 +65,13 @@ const keywordsController = {
         }
       )
       if (!articles.length) {
-        res.json({
+        return res.json({
           status: 404,
           message: '找不到相關條文!'
         })
       } else {
         const slicedArticles = articles.slice(dataOffset, dataOffset + dataPerPage)
-        res.json({
+        return res.json({
           status: 200,
           data: { articles: slicedArticles },
           pagination: { currentPage, totalPage: countTotalPage(articles.length) }
@@ -80,14 +83,15 @@ const keywordsController = {
   },
   getNotes: async (req, res, next) => {
     try {
-      const currentPage = req.query.page || 1
+      const currentPage = Number(req.query.page) || 1
       const dataOffset = (currentPage - 1) * 10
       const id = req.params.id
       const notes = await Note.findAndCountAll({
-        where: { elementId: id },
-        order: ['createdAt', 'DESC'],
+        where: { elementId: id, userId: getUser(req).id },
+        order: [['createdAt', 'DESC']],
         limit: dataPerPage,
         offset: dataOffset,
+        nest: true,
         raw: true
       })
       if (!notes.count) {
@@ -99,7 +103,7 @@ const keywordsController = {
         const results = notes.rows.map((note) => {
           return {
             ...note,
-            relativeTime: dayjs(note.createdAt)
+            relativeTime: dayjs(note.createdAt).fromNow()
           }
         })
         res.json({
@@ -119,7 +123,7 @@ const keywordsController = {
           raw: true
         }
       )
-      res.json({
+      return res.json({
         status: 200,
         data: { keywords }
       })
@@ -131,7 +135,7 @@ const keywordsController = {
     try {
       const { name } = req.body
       if (!name) {
-        res.json({
+        return res.json({
           status: 400,
           message: ['搜尋欄不可空白！']
         })
@@ -144,7 +148,7 @@ const keywordsController = {
         }
         // 儲存搜尋紀錄
         await Search.create({ elementId: keyword.id })
-        res.json({
+        return res.json({
           status: 200,
           data: keyword.toJSON()
         })

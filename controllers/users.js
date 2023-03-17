@@ -4,6 +4,9 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { getUser } = require('../helpers/auth-helpers')
 const countTotalPage = require('../helpers/pagination-helpers')
+const dayjs = require('dayjs')
+const relativeTime = require('dayjs/plugin/relativeTime')
+dayjs.extend(relativeTime)
 const dataPerPage = 10 // 一頁出現10筆資料
 
 const usersController = {
@@ -18,10 +21,12 @@ const usersController = {
         email: email.trim(),
         password: passwordHashed
       })
-      res.json({
+      const dataUser = user.toJSON()
+      delete dataUser.password
+      return res.json({
         status: 200,
         message: '帳號已成功註冊',
-        data: user.toJSON()
+        data: dataUser
       })
     } catch (err) {
       next(err)
@@ -33,25 +38,26 @@ const usersController = {
       const { account, password } = req.body
       const user = await User.findOne({ where: { account } })
       if (!user) {
-        res.json({
+        return res.json({
           status: 401,
           message: '帳號尚未註冊！'
         })
       } else if (!bcrypt.compareSync(password, user.password)) {
-        res.json({
+        return res.json({
           status: 401,
           message: '帳號或密碼錯誤！'
         })
       } else {
+        const dataUser = user.toJSON()
+        delete dataUser.password // 不回傳密碼
         // 驗證過後就簽發token
-        const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET_KEY, { expiresIn: '30d' })
-        delete user.password // 不回傳密碼
-        res.json({
+        const token = jwt.sign(dataUser, process.env.JWT_SECRET_KEY, { expiresIn: '30d' })
+        return res.json({
           status: 200,
           message: '登入成功!',
           data: {
             token,
-            user: user.toJSON()
+            user: dataUser
           }
         })
       }
@@ -66,18 +72,18 @@ const usersController = {
       const likes = await Like.findAndCountAll({
         where: { userId: getUser(req).id },
         include: Element,
-        order: ['createdAt', 'DESC'],
+        order: [['createdAt', 'DESC']],
         limit: dataPerPage,
         offset: dataOffset,
         raw: true
       })
-      if (!likes.count.length) {
-        res.json({
+      if (!likes.count) {
+        return res.json({
           status: 404,
           message: '尚未有收藏的關鍵字!'
         })
       } else {
-        res.json({
+        return res.json({
           status: 200,
           data: { likes: likes.rows },
           pagination: { currentPage, totalPage: countTotalPage(likes.count) }
@@ -94,20 +100,26 @@ const usersController = {
       const notes = await Note.findAndCountAll({
         where: { userId: getUser(req).id },
         include: Element,
-        order: ['createdAt', 'DESC'],
+        order:[['createdAt', 'DESC']],
         limit: dataPerPage,
         offset: dataOffset,
         raw: true
       })
-      if (!notes.count.length) {
-        res.json({
+      if (!notes.count) {
+        return res.json({
           status: 404,
           message: '尚未有任何筆記!'
         })
       } else {
-        res.json({
+        const results = notes.rows.map(note => {
+          return{
+            ...note,
+            relativeTime: dayjs(note.createdAt).fromNow()
+          }
+        })
+        return res.json({
           status: 200,
-          data: { notes: notes.rows },
+          data: { notes: results },
           pagination: { currentPage, totalPage: countTotalPage(notes.count) }
         })
       }
@@ -119,15 +131,16 @@ const usersController = {
     try {
       const user = await User.findByPk(getUser(req).id)
       if (!user) {
-        res.json({
+        return res.json({
           status: 404,
           message: '使用者不存在，請重新註冊！'
         })
       } else {
-        delete user.password
-        res.json({
+        const dataUser = user.toJSON()
+        delete dataUser.password
+        return res.json({
           status: 200,
-          data: user.toJSON()
+          data: dataUser
         })
       }
     } catch (err) {
@@ -141,7 +154,7 @@ const usersController = {
         nest: true
       })
       if (!user) {
-        res.json({
+        return res.json({
           status: 404,
           message: '使用者不存在，請重新註冊！'
         })
@@ -155,10 +168,12 @@ const usersController = {
           email: email.trim(),
           password: passwordHashed
         })
-        res.json({
+        const dataUser = result.toJSON()
+        delete dataUser.password
+        return res.json({
           status: 200,
           message: '檔案已更改成功！',
-          data: result.toJSON()
+          data: dataUser
         })
       }
     } catch (err) {
