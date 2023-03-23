@@ -11,6 +11,6 @@ const errorHandler = require('../middleware/error-handler')
 router.use('/api/v1/users', users)
 router.use('/api/v1/keywords', keywords)
 router.use('/api/v1/references', references)
-router.use('/api/v1/notes', authenticated,  authenticate.authenticatedNote, validatedNote, notes)
-router.use('/', errorHandler)
+router.use('/api/v1/notes', authenticated, authenticate.authenticatedNote, validatedNote, notes)
+router.use('/api/v1/', errorHandler)
 module.exports = router
