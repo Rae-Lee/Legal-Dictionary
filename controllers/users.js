@@ -19,6 +19,7 @@ const usersController = {
         account: account.trim(),
         name: name.trim(),
         email: email.trim(),
+        role: 'user',
         password: passwordHashed
       })
       const dataUser = user.toJSON()
@@ -42,7 +43,7 @@ const usersController = {
           message: ['所有欄位皆為必填！']
         })
       }
-      const user = await User.findOne({ where: { account: account.trim() } })
+      const user = await User.findOne({ where: { account: account.trim(), role: 'user' } })
       if (!user) {
         return res.json({
           status: 401,

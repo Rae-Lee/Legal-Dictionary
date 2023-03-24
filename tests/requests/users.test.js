@@ -26,6 +26,7 @@ describe('# register', () => {
           expect(res.body.status).to.equal(200)
           expect(res.body.message).to.equal('帳號已成功註冊')
           expect(res.body.data.account).to.equal('User1')
+          expect(res.body.data.role).to.equal('user')
           done()
         })
     })
@@ -125,6 +126,18 @@ describe('# register', () => {
             })
         })
     })
+    it('9.註冊為管理員帳號', (done) => {
+      request(app)
+        .post('/api/v1/users/register')
+        .send('account=root&name=root&email=root@example.com&password=12345&checkPassword=12345&role=admin')
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body.status).to.equal(200)
+          expect(res.body.data.role).to.equal('user')
+          done()
+        })
+    })
     afterEach(async () => {
       await sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
       await User.destroy({ where: {}, truncate: true, force: true })
@@ -199,6 +212,21 @@ describe('# login', () => {
           done()
         })
     })
+    it('13.使用管理員帳號登入前台', (done) => {
+      User.create({ account: 'root', password: bcrypt.hash('12345', 10) })
+        .then(() => {
+          request(app)
+            .post('/api/v1/users/login')
+            .send('account=root&password=12345')
+            .set('Accept', 'application/json')
+            .end((err, res) => {
+              if (err) return done(err)
+              expect(res.body.status).to.equal(401)
+              expect(res.body.message).to.equal('帳號尚未註冊！')
+            })
+        })
+      done()
+    })
   })
   afterEach(async () => {
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
@@ -206,4 +234,3 @@ describe('# login', () => {
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
   })
 })
-

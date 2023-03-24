@@ -24,7 +24,7 @@ module.exports = {
       name: 'root',
       email: 'root@example.com',
       password: await bcrypt.hash('12345678', 10),
-      role: 'root',
+      role: 'admin',
       created_at: new Date(),
       updated_at: new Date()
     }], {})
