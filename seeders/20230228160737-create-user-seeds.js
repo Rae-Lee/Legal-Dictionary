@@ -8,6 +8,7 @@ module.exports = {
       name: 'user1',
       email: 'user1@example.com',
       password: await bcrypt.hash('12345678', 10),
+      role: 'user',
       created_at: new Date(),
       updated_at: new Date()
     }, {
@@ -15,6 +16,15 @@ module.exports = {
       name: 'user2',
       email: 'user2@example.com',
       password: await bcrypt.hash('12345678', 10),
+      role: 'user',
+      created_at: new Date(),
+      updated_at: new Date()
+    }, {
+      account: 'root',
+      name: 'root',
+      email: 'root@example.com',
+      password: await bcrypt.hash('12345678', 10),
+      role: 'root',
       created_at: new Date(),
       updated_at: new Date()
     }], {})
