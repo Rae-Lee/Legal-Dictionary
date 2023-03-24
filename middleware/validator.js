@@ -23,7 +23,7 @@ const validator = {
     try {
       const id = Number(req.params.id)
       const note = await Note.findByPk(id)
-      if (!note) {
+      if (!note || note.deletedAt) {
         return res.json({
           status: 404,
           message: '該筆記已不存在!'

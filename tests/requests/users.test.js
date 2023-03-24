@@ -5,6 +5,8 @@ const request = require('supertest')
 const sinon = require('sinon')
 const bcrypt = require('bcryptjs')
 const app = require('../../app')
+const helpers = require('../../helpers/auth-helpers')
+const passport = require('../../config/passport')
 const db = require('../../models')
 const { sequelize, User } = db
 
@@ -232,5 +234,147 @@ describe('# login', () => {
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
     await User.destroy({ where: {}, truncate: true, force: true })
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
+  })
+})
+describe('# get personal profile', () => {
+  beforeEach(async () => {
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
+    await User.destroy({ where: {}, truncate: true, force: true })
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
+    this.authenticate = sinon.stub(passport, 'authenticate').callsFake((strategy, options, cb) => {
+      cb(null, { account: 'User1'}, null)
+      return (req, res, next) => { }
+    })
+    this.getUser = sinon.stub(helpers, 'getUser').returns({ id: 1, role: 'user' })
+    await User.create({ account: 'User1', name: 'User1', email: 'User1', password: 'User1' })
+    await User.create({ account: 'User2', name: 'User2', email: 'User2', password: 'User2' })
+  })
+  context('#successfully', () => {
+    it('1.成功回傳api', (done) => {
+      request(app)
+        .get(' /api/v1/users/1')
+        .set('Accept', 'application/json')
+        .expect(200)
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body.status).to.equal(200)
+          expect(res.body.data.account).to.equal('User1')
+          expect(res.body.data.role).to.equal('user')
+          done()
+        })
+    })
+    it('2.成功新增資料到資料庫', (done) => {
+      request(app)
+        .post('/api/v1/users/register')
+        .send('account=User1&name=User1&email=User1@example.com&password=12345&checkPassword=12345')
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          if (err) return done(err)
+          User.findByPk(1)
+            .then(user => {
+              expect(user.account).to.equal('User1')
+              expect(user.name).to.equal('User1')
+              expect(user.email).to.equal('User1@example.com')
+            })
+          done()
+        })
+    })
+  })
+  context('#fail', () => {
+    it('3.當有欄位沒有填', (done) => {
+      request(app)
+        .post('/api/v1/users/register')
+        .send('account=User1&email=User1@example.com&password=12345&checkPassword=12345')
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body.status).to.equal(400)
+          expect(res.body.message).deep.to.equal(['所有欄位皆為必填！'])
+          done()
+        })
+    })
+    it('4.密碼與確認密碼不相符', (done) => {
+      request(app)
+        .post('/api/v1/users/register')
+        .send('account=User1&name=User1&email=User1@example.com&password=12345&checkPassword=1234')
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body.status).to.equal(400)
+          expect(res.body.message).deep.to.equal(['密碼與確認密碼不相符!'])
+          done()
+        })
+    })
+    it('5.暱稱字數超出上限', (done) => {
+      request(app)
+        .post('/api/v1/users/register')
+        .send('account=User1&name=席勒在過去曾經講過，只有絕望的賭鬼才肯把全部所有作孤注的一擲。一個商人如果把他的全部財產裝在一隻船上，人家就管他叫冒失鬼。這句話令我不禁感慨問題的迫切性。需要考慮周詳名字的影響及因應對策。&email=User1@example.com&password=12345&checkPassword=12345')
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body.status).to.equal(400)
+          expect(res.body.message).deep.to.equal(['暱稱字數超出上限！'])
+          done()
+        })
+    })
+    it('6.email 輸入錯誤', (done) => {
+      request(app)
+        .post('/api/v1/users/register')
+        .send('account=User1&name=User1&email=User1&password=12345&checkPassword=12345')
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body.status).to.equal(400)
+          expect(res.body.message).deep.to.equal(['email 輸入錯誤!'])
+          done()
+        })
+    })
+    it('7.帳號已重複註冊', (done) => {
+      User.create({ account: 'User1', name: 'User1', email: 'User1@example.com', password: 12345, checkPassword: 12345 })
+        .then(() => {
+          request(app)
+            .post('/api/v1/users/register')
+            .send('account=User1&name=User1&email=User1@aaa.com&password=12345&checkPassword=12345')
+            .set('Accept', 'application/json')
+            .end((err, res) => {
+              if (err) return done(err)
+              expect(res.body.status).to.equal(400)
+              expect(res.body.message).deep.to.equal(['帳號已重複註冊!'])
+              done()
+            })
+        })
+    })
+    it('8.email 已重複註冊', (done) => {
+      User.create({ account: 'User1', name: 'User1', email: 'User1@example.com', password: 12345, checkPassword: 12345 })
+        .then(() => {
+          request(app)
+            .post('/api/v1/users/register')
+            .send('account=User2&name=User1&email=User1@example.com&password=12345&checkPassword=12345')
+            .set('Accept', 'application/json')
+            .end((err, res) => {
+              if (err) return done(err)
+              expect(res.body.status).to.equal(400)
+              expect(res.body.message).deep.to.equal(['email 已重複註冊!'])
+              done()
+            })
+        })
+    })
+    it('9.註冊為管理員帳號', (done) => {
+      request(app)
+        .post('/api/v1/users/register')
+        .send('account=root&name=root&email=root@example.com&password=12345&checkPassword=12345&role=admin')
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          if (err) return done(err)
+          expect(res.body.status).to.equal(200)
+          expect(res.body.data.role).to.equal('user')
+          done()
+        })
+    })
+    afterEach(async () => {
+      await sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
+      await User.destroy({ where: {}, truncate: true, force: true })
+      await sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
+    })
   })
 })
