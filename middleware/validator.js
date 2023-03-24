@@ -39,7 +39,7 @@ const validator = {
     try {
       const { account, name, email, password, checkPassword } = req.body
       const message = []
-      if (!account || !name || !email || !password) {
+      if (!account || !name || !email || !password || !checkPassword) {
         message.push('所有欄位皆為必填！')
       } else {
         if (password.trim() !== checkPassword.trim()) {
@@ -52,11 +52,11 @@ const validator = {
           message.push('email 輸入錯誤!')
         }
         const userFindByEmail = await User.findOne({ where: { email: email.trim() } })
-        if (!userFindByEmail) {
+        if (userFindByEmail) {
           message.push('email 已重複註冊!')
         }
         const userFindByAccount = await User.findOne({ where: { account: account.trim() } })
-        if (!userFindByAccount) {
+        if (userFindByAccount) {
           message.push('帳號已重複註冊!')
         }
       }
@@ -75,7 +75,7 @@ const validator = {
     try {
       const { account, name, email, password, checkPassword } = req.body
       const message = []
-      if (!account || !name || !email || !password) {
+      if (!account || !name || !email || !password || !checkPassword) {
         message.push('所有欄位皆為必填！')
       } else {
         if (password.trim() !== checkPassword.trim()) {

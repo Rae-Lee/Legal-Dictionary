@@ -36,31 +36,37 @@ const usersController = {
     try {
       // 驗證
       const { account, password } = req.body
-      const user = await User.findOne({ where: { account } })
+      if (!account || !password) {
+        return res.json({
+          status: 400,
+          message: ['所有欄位皆為必填！']
+        })
+      }
+      const user = await User.findOne({ where: { account: account.trim() } })
       if (!user) {
         return res.json({
           status: 401,
           message: '帳號尚未註冊！'
         })
-      } else if (!bcrypt.compareSync(password, user.password)) {
+      }
+      if (!bcrypt.compareSync(password.trim(), user.password)) {
         return res.json({
           status: 401,
           message: '帳號或密碼錯誤！'
         })
-      } else {
-        const dataUser = user.toJSON()
-        delete dataUser.password // 不回傳密碼
-        // 驗證過後就簽發token
-        const token = jwt.sign(dataUser, process.env.JWT_SECRET_KEY, { expiresIn: '30d' })
-        return res.json({
-          status: 200,
-          message: '登入成功!',
-          data: {
-            token,
-            user: dataUser
-          }
-        })
       }
+      const dataUser = user.toJSON()
+      delete dataUser.password // 不回傳密碼
+      // 驗證過後就簽發token
+      const token = jwt.sign(dataUser, process.env.JWT_SECRET_KEY, { expiresIn: '10d' })
+      return res.json({
+        status: 200,
+        message: '登入成功!',
+        data: {
+          token,
+          user: dataUser
+        }
+      })
     } catch (err) {
       next(err)
     }
@@ -100,7 +106,7 @@ const usersController = {
       const notes = await Note.findAndCountAll({
         where: { userId: getUser(req).id },
         include: Element,
-        order:[['createdAt', 'DESC']],
+        order: [['createdAt', 'DESC']],
         limit: dataPerPage,
         offset: dataOffset,
         raw: true
@@ -112,7 +118,7 @@ const usersController = {
         })
       } else {
         const results = notes.rows.map(note => {
-          return{
+          return {
             ...note,
             relativeTime: dayjs(note.createdAt).fromNow()
           }

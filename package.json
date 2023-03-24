@@ -33,7 +33,6 @@
     "supertest": "^6.3.3"
   },
   "devDependencies": {
-    "cross-env": "^6.0.3",
     "eslint": "^8.31.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
