@@ -17,7 +17,8 @@ module.exports = (sequelize, DataTypes) => {
   Note.init({
     userId: DataTypes.INTEGER,
     elementId: DataTypes.INTEGER,
-    content: DataTypes.TEXT
+    content: DataTypes.TEXT,
+    deletedAt: DataTypes.DATE
   }, {
     sequelize,
     modelName: 'Note',
