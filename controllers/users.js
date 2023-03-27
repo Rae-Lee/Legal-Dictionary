@@ -35,27 +35,8 @@ const usersController = {
   },
   login: async (req, res, next) => {
     try {
-      // 驗證
-      const { account, password } = req.body
-      if (!account || !password) {
-        return res.json({
-          status: 400,
-          message: ['所有欄位皆為必填！']
-        })
-      }
+      const { account } = req.body
       const user = await User.findOne({ where: { account: account.trim(), role: 'user' } })
-      if (!user) {
-        return res.json({
-          status: 401,
-          message: '帳號尚未註冊！'
-        })
-      }
-      if (!bcrypt.compareSync(password.trim(), user.password)) {
-        return res.json({
-          status: 401,
-          message: '帳號或密碼錯誤！'
-        })
-      }
       const dataUser = user.toJSON()
       delete dataUser.password // 不回傳密碼
       // 驗證過後就簽發token

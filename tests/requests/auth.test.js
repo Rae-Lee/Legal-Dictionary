@@ -43,8 +43,8 @@ describe('# register', () => {
               expect(user.name).to.equal('User1')
               expect(user.email).to.equal('User1@example.com')
             })
-          done()
         })
+      done()
     })
   })
   context('#fail', () => {
@@ -223,6 +223,21 @@ describe('# login', () => {
               if (err) return done(err)
               expect(res.body.status).to.equal(401)
               expect(res.body.message).to.equal('帳號尚未註冊！')
+            })
+        })
+      done()
+    })
+    it('15.帳號已列入黑名單', (done) => {
+      User.create({ account: 'User1', password: bcrypt.hash('12345', 10), deletedAt: '2023-03-26 14:00' })
+        .then(() => {
+          request(app)
+            .post('/api/v1/users/login')
+            .send('account=User1&password=12345')
+            .set('Accept', 'application/json')
+            .end((err, res) => {
+              if (err) return done(err)
+              expect(res.body.status).to.equal(403)
+              expect(res.body.message).to.equal('您的帳號已被列入黑名單中，請聯絡客服人員提供協助')
             })
         })
       done()

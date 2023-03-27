@@ -1,3 +1,4 @@
+const bcrypt = require('bcryptjs')
 const db = require('../models')
 const { Element, Note, User } = db
 const { getUser } = require('../helpers/auth-helpers')
@@ -23,7 +24,7 @@ const validator = {
     try {
       const id = Number(req.params.id)
       const note = await Note.findByPk(id)
-      if (!note || note.deletedAt) {
+      if (!note) {
         return res.json({
           status: 404,
           message: '該筆記已不存在!'
@@ -64,6 +65,39 @@ const validator = {
         return res.json({
           status: 400,
           message
+        })
+      }
+      next()
+    } catch (err) {
+      throw new Error(err)
+    }
+  },
+  validatedLogin: async (req, res, next) => {
+    try {
+      const { account, password } = req.body
+      if (!account || !password) {
+        return res.json({
+          status: 400,
+          message: ['所有欄位皆為必填！']
+        })
+      }
+      const user = await User.findOne({ where: { account: account.trim(), role: 'user' } })
+      if (!user) {
+        return res.json({
+          status: 401,
+          message: '帳號尚未註冊！'
+        })
+      }
+      if (!bcrypt.compareSync(password.trim(), user.password)) {
+        return res.json({
+          status: 401,
+          message: '帳號或密碼錯誤！'
+        })
+      }
+      if (user.deletedAt) {
+        return res.json({
+          status: 403,
+          message: '您的帳號已被列入黑名單中，請聯絡客服人員提供協助！'
         })
       }
       next()
