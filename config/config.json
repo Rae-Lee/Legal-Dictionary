@@ -7,9 +7,8 @@
     "dialect": "mysql"
   },
   "test": {
-    "username": "root",
-    "password": "password",
-    "database": "law_memo_test",
+    "username": "travis",
+    "database": "legal-dictionary-test",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
