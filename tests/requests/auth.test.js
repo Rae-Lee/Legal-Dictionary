@@ -213,7 +213,7 @@ describe('# login', () => {
         })
     })
     it('14.使用管理員帳號登入前台', (done) => {
-      User.create({ account: 'root', password: bcrypt.hash('12345', 10) })
+      User.create({ account: 'root', role:'admin',password: bcrypt.hash('12345', 10) })
         .then(() => {
           request(app)
             .post('/api/v1/users/login')
@@ -228,11 +228,11 @@ describe('# login', () => {
       done()
     })
     it('15.帳號已列入黑名單', (done) => {
-      User.create({ account: 'User1', password: bcrypt.hash('12345', 10), deletedAt: '2023-03-26 14:00' })
+      User.create({ account: 'User2', password: bcrypt.hash('12345', 10), deletedAt: '2023-03-26 14:00' })
         .then(() => {
           request(app)
             .post('/api/v1/users/login')
-            .send('account=User1&password=12345')
+            .send('account=User2&password=12345')
             .set('Accept', 'application/json')
             .end((err, res) => {
               if (err) return done(err)

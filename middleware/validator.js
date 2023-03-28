@@ -117,8 +117,8 @@ const validator = {
       const user = await User.findOne({ where: { account: account.trim(), role: 'admin' } })
       if (!user) {
         return res.json({
-          status: 401,
-          message: '帳號尚未註冊！'
+          status: 403,
+          message: '無法登入！'
         })
       }
       if (!bcrypt.compareSync(password.trim(), user.password)) {

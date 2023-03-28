@@ -23,7 +23,7 @@ const adminController = {
   },
   getUsers: async (req, res, next) => {
     try {
-      const users = await sequelize.query('SELECT `Users`.*,COALESCE(`notes`.`noteCounts`, 0)AS `noteCounts`,COALESCE(`favorites`.`favoriteCounts`, 0)AS `favoriteCounts`FROM `Users`LEFT JOIN(SELECT `user_id`,COUNT(`id`) AS `noteCounts`FROM `Notes` GROUP BY `user_id`) AS `notes`ON `Users`.`id` = `notes`.`user_id` LEFT JOIN(SELECT `user_id`,COUNT(`id`)  AS `favoriteCounts`FROM `Favorites`GROUP BY `user_id` )AS`favorites`ON `Users`.`id` = `favorites`.`user_id` WHERE `Users`.`role` = "user"ORDER BY `noteCounts` DESC;', {
+      const users = await sequelize.query('SELECT `Users`.`account`,`Users`.`email`,COALESCE(`notes`.`noteCounts`, 0)AS `noteCounts`,COALESCE(`favorites`.`favoriteCounts`, 0)AS `favoriteCounts`FROM `Users`LEFT JOIN(SELECT `user_id`,COUNT(`id`) AS `noteCounts`FROM `Notes` GROUP BY `user_id`) AS `notes`ON `Users`.`id` = `notes`.`user_id` LEFT JOIN(SELECT `user_id`,COUNT(`id`)  AS `favoriteCounts`FROM `Favorites`GROUP BY `user_id` )AS`favorites`ON `Users`.`id` = `favorites`.`user_id` WHERE `Users`.`role` = "user"ORDER BY `noteCounts` DESC;', {
         raw: true,
         nest: true
       })
