@@ -32,7 +32,7 @@ describe('# add keyword like', () => {
         .end((err, res) => {
           if (err) return done(err)
           expect(res.body.status).to.equal(200)
-          expect(res.body.data.name).to.equal('毒品')
+          expect(res.body.data.elementId).to.equal(1)
         })
       done()
     })
@@ -97,7 +97,7 @@ describe('# delete keyword like', () => {
         .end((err, res) => {
           if (err) return done(err)
           expect(res.body.status).to.equal(200)
-          expect(res.body.data.name).to.equal('毒品')
+          expect(res.body.data.elementId).to.equal(1)
         })
       done()
     })

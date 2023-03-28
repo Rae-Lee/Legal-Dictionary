@@ -92,7 +92,7 @@ describe('# delete keyword note', () => {
       helpers, 'getUser'
     ).returns({ id: 1, role: 'user', deletedAt: null })
     await Element.create({ name: '毒品' })
-    await Note.create({ userId: 1, elementId: 1 , content:'1235'})
+    await Note.create({ userId: 1, elementId: 1, content: '1235'})
     await Note.create({ userId: 2, elementId: 1, content: '1235' })
   })
   context('#successfully', () => {
@@ -103,7 +103,7 @@ describe('# delete keyword note', () => {
         .end((err, res) => {
           if (err) return done(err)
           expect(res.body.status).to.equal(200)
-          expect(res.body.data.elementId).to.equal(1)
+          expect(res.body.data.id).to.equal(1)
         })
       done()
     })
