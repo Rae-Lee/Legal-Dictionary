@@ -6,7 +6,7 @@ workflows:
         node/test:
           version: '18.13'
           pkg-manager: npm
-        steps:
+       
           - run:
           name: env
           command: NODE_ENV=test
