@@ -7,7 +7,6 @@ jobs:
     steps:
       - checkout
       - node/install-packages:
-          version: '18.13'
           pkg-manager: npm
       - run:
          command: NODE_ENV=test
