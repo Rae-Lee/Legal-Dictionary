@@ -1,0 +1,33 @@
+version: 2.1
+orbs:
+  node: circleci/node@4.7
+workflows:
+    jobs:
+        node/test:
+          version: '18.13'
+          pkg-manager: npm
+        steps:
+          - run:
+          name: env
+          command: NODE_ENV=test
+
+          - run:
+          name: create database
+          command: mysql -e 'CREATE DATABASE IF NOT EXISTS forum_test default character set utf8mb4 collate utf8mb4_unicode_ci;'
+
+          - run:
+          name: Install sequelize CLI
+          command: npm install sequelize-cli -g
+
+          - run:
+          name: export JWT
+          command: export JWT_SECRET_KEY=legalDictionary
+
+          - run:
+          name: create table
+          command: sequelize db:migrate
+
+          - run:
+          name: Test
+          command: npm run test
+         
