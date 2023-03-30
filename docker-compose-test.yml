@@ -9,7 +9,9 @@ services:
       - NODE_ENV: test
     ports: 
       - 3000:3000
-    command: npm run test
+    command: 
+      sequelize db:migrate
+      npm run test
     depends_on: 
       - db 
   db:
