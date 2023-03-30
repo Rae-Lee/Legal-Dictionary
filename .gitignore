@@ -1,5 +1,11 @@
 node_modules
 .env
+.env-test
 chromedriver.exe
 result.js
 coverage
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.log
+*.gz

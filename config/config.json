@@ -1,15 +1,16 @@
 {
   "development": {
-    "username": "root",
-    "password": "password",
-    "database": "law_memo",
-    "host": "127.0.0.1",
+    "username": "${process.env.MYSQL_USER}",
+    "password": "${process.env.MYSQL_ROOT_PASSWORD}",
+    "database": "${process.env.MYSQL_DATABASE}",
+    "host": "${process.env.DB_HOST}",
     "dialect": "mysql"
   },
   "test": {
-    "username": "circleci",
-    "database": "legal-dictionary-test",
-    "host": "127.0.0.1",
+    "username": "${process.env.MYSQL_USER_TEST}",
+    "password": "${process.env.MYSQL_ROOT_PASSWORD_TEST}",
+    "database": "${process.env.MYSQL_DATABASE_TEST}",
+    "host": "${process.env.DB_HOST}",
     "dialect": "mysql"
   },
   "production": {
