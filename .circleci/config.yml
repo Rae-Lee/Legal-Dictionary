@@ -1,31 +1,32 @@
 version: 2.1
 orbs:
-   browser-tools: circleci/browser-tools@1.4.1
+  node: circleci/node:latest
+  mysql: circleci/mysql:latest
 jobs:
-  build_and_test: 
-    docker: 
-      - image:  circleci/node:latest
-          environment
-            JWT_SECRET_KEY=legalDictionary
-            NODE_ENV=test
-      - image:  circleci/mysql:latest
-          environment
-            MYSQL_ALLOW_EMPTY_PASSWORD=true
-            MYSQL_DATABASE=law_memo_test
-            MYSQL_USER=root
-            MYSQL_ROOT_PASSWORD=password
-            MYSQL_PASSWORD=password
+  db:
+     executor: mysql/default
+     steps:
+      - checkout
+  build: 
+    executor: node/default
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - v1-cache-{{ checksum "package.json" }}
-            - v1-cache-
-      - run: npm install
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-cache-{{ checksum "package.json" }}
+      - node/install-packages:
+          pkg-manager: npm
+      steps:
+      - checkout
+      - run:
+         command: |
+            for i in `seq 1 10`;
+            do
+              nc -z 127.0.0.1 3306 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for MySQL && exit 1
+         name: Waiting for MySQL to be ready
+      -run: 
+          command: export JWT_SECRET_KEY=legalDictionary
       - run:
          command: set NODE_ENV=test
          name: env
@@ -33,7 +34,7 @@ jobs:
          command: sudo apt-get install default-mysql-client
          name: install mysql-client   
       - run:
-         command: mysql -h 127.0.0.1 -e 'CREATE DATABASE IF NOT EXISTS law_memo_test default character set utf8mb4 collate utf8mb4_unicode_ci;'
+         command: mysql -h 127.0.0.1 -u root -p password law_memo_test  -e 'CREATE DATABASE IF NOT EXISTS law_memo_test default character set utf8mb4 collate utf8mb4_unicode_ci;'
          name: create database
       - run:
          command: npm install sequelize-cli -g
@@ -44,10 +45,12 @@ jobs:
       - run:
          command: npm run test
          name: run test
+          
 workflows:
   CICD:
     jobs:
-      - build_and_test
+      - db
+      - build
       
 
 
