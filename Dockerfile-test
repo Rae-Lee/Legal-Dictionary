@@ -1,7 +1,0 @@
-FROM node:latest
-COPY . /app/
-WORKDIR /app
-RUN npm install && npm cache clean --force
-RUN npm install -g mocha sequelize-cli 
-CMD [ "npm", "run", "test" ]
-EXPOSE 3000

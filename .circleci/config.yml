@@ -1,25 +1,36 @@
 version: 2.1
 orbs:
-  node: circleci/node@4.7
+  browser-tools: circle/browser-tools:latest
 jobs:
   build_and_test: 
-    executor: node/default
+    docker: 
+      - image:  circleci/node:latest
+         environment:
+           JWT_SECRET_KEY: legalDictionary
+           NODE_ENV: test
+      - image:  circleci/mysql:latest
+         environment:
+           MYSQL_ALLOW_EMPTY_PASSWORD: true
+           MYSQL_DATABASE: law_memo_test
+           MYSQL_USER: root
+           MYSQL_ROOT_PASSWORD: password
+           MYSQL_PASSWORD: password
     steps:
       - checkout
       - node/install-packages:
           pkg-manager: npm
       - run:
-         command: NODE_ENV=test
+         command: set NODE_ENV=test
          name: env
       - run:
-         command: mysql -e 'CREATE DATABASE IF NOT EXISTS forum_test default character set utf8mb4 collate utf8mb4_unicode_ci;'
+        command: sudo apt-get install default-mysql-client
+        name: install mysql-client   
+      - run:
+         command: mysql -h 127.0.0.1 -e 'CREATE DATABASE IF NOT EXISTS law_memo_test default character set utf8mb4 collate utf8mb4_unicode_ci;'
          name: create database
       - run:
          command: npm install sequelize-cli -g
          name: install sequelize cli
-      - run:
-         command: export JWT_SECRET_KEY=legalDictionary
-         name: export jwt secret
       - run:
          command: sequelize db:migrate
          name: create table

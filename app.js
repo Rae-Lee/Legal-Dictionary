@@ -1,13 +1,16 @@
 const express = require('express')
 const app = express()
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV.trim() === 'development') {
   require('dotenv').config()
 }
-const port = process.env.PORT || 3000
+if (process.env.NODE_ENV.trim() === 'test') {
+  require('dotenv').config({ path: `${process.cwd()}/.env-test` })
+}
+const port = process.env.NODE_PORT || 3000
 const passport = require('./config/passport')
 const cors = require('cors')
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: 'http://localhost',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowHeaders: ['Content-Type', 'Authorization']
 }
