@@ -4,7 +4,7 @@ orbs:
 jobs:
   db:
     docker:   
-      - image: cimg/mysql:8.0
+      - image: circleci/mysql:5.7 
     steps:
       - checkout  
   build: 
@@ -17,10 +17,7 @@ jobs:
           command: export JWT_SECRET_KEY=legalDictionary
       - run:
          command: set NODE_ENV=test
-         name: env
-      - run:
-         command: sudo apt-get install default-mysql-client
-         name: install mysql-client   
+         name: env  
       - run:
          command: mysql -h 127.0.0.1 -u root -p password law_memo_test  -e 'CREATE DATABASE IF NOT EXISTS law_memo_test default character set utf8mb4 collate utf8mb4_unicode_ci;'
          name: create database
