@@ -5,19 +5,19 @@ jobs:
   build_and_test: 
     docker: 
       - image:  circleci/node:latest
-         environment:
-           JWT_SECRET_KEY: legalDictionary
-           NODE_ENV: test
+          environment: 
+            JWT_SECRET_KEY: legalDictionary
+            NODE_ENV: test
       - image:  circleci/mysql:latest
-         environment:
-           MYSQL_ALLOW_EMPTY_PASSWORD: true
-           MYSQL_DATABASE: law_memo_test
-           MYSQL_USER: root
-           MYSQL_ROOT_PASSWORD: password
-           MYSQL_PASSWORD: password
+          environment: 
+            MYSQL_ALLOW_EMPTY_PASSWORD: true
+            MYSQL_DATABASE: law_memo_test
+            MYSQL_USER: root
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_PASSWORD: password
     steps:
       - checkout
-      - node/install-packages:
+      - node/install-packages: 
           pkg-manager: npm
       - run:
          command: set NODE_ENV=test
