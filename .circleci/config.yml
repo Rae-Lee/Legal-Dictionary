@@ -8,11 +8,9 @@ jobs:
      steps:
       - checkout
       - run:
-          name: Install MySQL CLI and create database  
-          command: |
-            sudo apt update
-            sudo apt-get install mysql-client
-            mysql -h 127.0.0.1 -u root -ppassword --execute="CREATE DATABASE IF NOT EXISTS law_memo_test;default character set utf8mb4 collate utf8mb4_unicode_ci;" 
+          name: create database  
+          command: 
+            mysql -uroot -e "CREATE DATABASE IF NOT EXISTS `law_memo_test`;" 
   build: 
     executor: node/default
     steps:
