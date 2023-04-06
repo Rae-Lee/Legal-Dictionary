@@ -8,7 +8,7 @@ jobs:
     steps:
       - checkout
       - run:
-         command: mysql -h 127.0.0.1 -u root -p password -e 'CREATE DATABASE IF NOT EXISTS law_memo_test; default character set utf8mb4 collate utf8mb4_unicode_ci;'
+         command: mysql -h 127.0.0.1 -u root -p password -e 'CREATE DATABASE IF NOT EXISTS law_memo_test;'
          name: create database  
   build: 
     executor: node/default
