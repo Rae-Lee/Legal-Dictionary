@@ -10,6 +10,7 @@ jobs:
       - run:
           name: create database  
           command: 
+            mysql.server start
             mysql -uroot -e "CREATE DATABASE IF NOT EXISTS `law_memo_test`;" 
   build: 
     executor: node/default
