@@ -3,13 +3,27 @@ orbs:
   node: circleci/node@5.1.0
 jobs:
   db:
-    docker:   
+     docker:   
       - image: circleci/mysql:5.7 
-    steps:
+     steps:
       - checkout
       - run:
-         command: mysql -h 127.0.0.1 -u root -p password -e 'CREATE DATABASE IF NOT EXISTS law_memo_test;'
-         name: create database  
+          name: Waiting for MySQL to be ready
+          command: |
+            for i in `seq 1 30`;
+            do
+              nc -z 127.0.0.1 3306 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for MySQL && exit 1
+      # Import DB Dump
+      - run:
+          name: Install MySQL CLI and create database  
+          command: |
+            sudo apt update
+            sudo apt-get install mysql-client
+            mysql -h 127.0.0.1 -u root -ppassword --execute="CREATE DATABASE IF NOT EXISTS law_memo_test;default character set utf8mb4 collate utf8mb4_unicode_ci;" 
   build: 
     executor: node/default
     steps:
@@ -36,7 +50,3 @@ workflows:
     jobs:
       - db
       - build
-      
-
-
-         
