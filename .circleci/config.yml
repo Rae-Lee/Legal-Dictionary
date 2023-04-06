@@ -17,7 +17,15 @@ jobs:
             MYSQL_PASSWORD=password
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - v1-cache-{{ checksum "package.json" }}
+            - v1-cache-
       - run: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-cache-{{ checksum "package.json" }}
       - run:
          command: set NODE_ENV=test
          name: env
