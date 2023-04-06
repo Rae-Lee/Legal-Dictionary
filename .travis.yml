@@ -1,0 +1,17 @@
+language: node_js
+node_js:
+    - "18"
+    - "17"
+    - "16"
+services:
+    - mysql
+env:
+    - NODE_ENV=test
+install:
+    - mysql -e 'CREATE DATABASE IF NOT EXISTS law_memo_test default character set utf8mb4 collate utf8mb4_unicode_ci;'
+    - npm install
+    - npm install sequelize-cli -g
+    - npm install mocha -g
+    - export JWT_SECRET_KEY=legalDictionary
+script:
+    - sequelize db:migrate             
