@@ -4,9 +4,9 @@ node_js:
 services:
   - mysql
 env:
-  - NODE_ENV=travis
+  - NODE_ENV=test
 before_install:
-  - mysql -e 'CREATE DATABASE IF NOT EXISTS law_memo_workspace_test default character set utf8mb4 collate utf8mb4_unicode_ci;'
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS law_memo_test default character set utf8mb4 collate utf8mb4_unicode_ci;'
   - npm install sequelize-cli -g
   - export JWT_SECRET_KEY=legalDictionary
 before_script:
