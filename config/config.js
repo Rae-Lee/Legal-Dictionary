@@ -25,5 +25,12 @@ module.exports = {
     database: 'database_production',
     host: '127.0.0.1',
     dialect: 'mysql'
+  },
+  travis: {
+    username: 'travis',
+    database: 'law_memo_workspace_test',
+    host: '127.0.0.1',
+    dialect: 'mysql',
+    logging: false
   }
 }

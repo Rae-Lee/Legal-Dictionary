@@ -1,17 +1,13 @@
 language: node_js
 node_js:
-    - "17"
+  - "18"
 services:
-    - mysql
+  - mysql
 env:
-    - NODE_ENV=test
-install:
-    - mysql -e 'GRANT ALL PRIVILEGES ON *.* TO root@127.0.0.1 IDENTIFIED BY 'password' WITH GRANT OPTION;'
-    - mysql -e 'FLUSH PRIVILEGES;'
-    - mysql -e 'CREATE DATABASE IF NOT EXISTS law_memo_test default character set utf8mb4 collate utf8mb4_unicode_ci;'
-    - npm install
-    - npm install sequelize-cli -g
-    - npm install mocha -g
-    - export JWT_SECRET_KEY=legalDictionary
-script:
-    - sequelize db:migrate             
+  - NODE_ENV=travis
+before_install:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS law_memo_workspace_test default character set utf8mb4 collate utf8mb4_unicode_ci;'
+  - npm install sequelize-cli -g
+  - export JWT_SECRET_KEY=legalDictionary
+before_script:
+  - sequelize db:migrate            
