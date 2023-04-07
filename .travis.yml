@@ -6,8 +6,7 @@ services:
 env:
     - NODE_ENV=test
 install:
-    - mysql -e 'CREATE USER my_user;'
-    - mysql -e 'ALTER USER my_user WITH SUPERUSER;'
+    - mysql -e 'ALTER USER 'root'@'localhost' IDENTIFIED BY 'MyN3wP4ssw0rd';'
     - mysql -e 'CREATE DATABASE IF NOT EXISTS law_memo_test default character set utf8mb4 collate utf8mb4_unicode_ci;'
     - npm install
     - npm install sequelize-cli -g
