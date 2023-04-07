@@ -6,6 +6,8 @@ services:
 env:
   - NODE_ENV=test
 before_install:
+  - mysql -e 'CREATE USER 'law'@'localhost' IDENTIFIED BY 'password';'
+  - mysql -e 'GRANT ALL PRIVILEGES ON *.* TO 'law'@'localhost' WITH GRANT OPTION;'
   - mysql -e 'CREATE DATABASE IF NOT EXISTS law_memo_test default character set utf8mb4 collate utf8mb4_unicode_ci;'
   - npm install sequelize-cli -g
   - export JWT_SECRET_KEY=legalDictionary
