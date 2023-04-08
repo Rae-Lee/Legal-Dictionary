@@ -4,9 +4,9 @@ node_js:
 services:
   - mysql
 env:
-  - NODE_ENV=test
+  - NODE_ENV=travis
 before_install:
-  - mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';FLUSH PRIVILEGES;"
+  # - mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';FLUSH PRIVILEGES;"
   - mysql -e 'CREATE DATABASE IF NOT EXISTS law_memo_test default character set utf8mb4 collate utf8mb4_unicode_ci;'
   - npm install sequelize-cli -g
   - export JWT_SECRET_KEY=legalDictionary

@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test'
+process.env.NODE_ENV = 'travis'
 const chai = require('chai')
 const expect = chai.expect
 const request = require('supertest')
