@@ -1,6 +1,7 @@
 const fetch = require('node-fetch')
 const cheerio = require('cheerio')
 const db = require('../models')
+const dns = require('dns')
 const { Code, Article } = db
 // 請求全國法規資料庫的最新訊息頁面
 const updateLaw = async (updateDate) => {
@@ -75,6 +76,7 @@ const getAllLink = async (links, updateDateArray) => {
 }
 // 載入頁面
 const loadPage = async (link) => {
+  dns.setDefaultResultOrder('ipv4first')
   const response = await fetch(link, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/ 537.36(KHTML, like Gecko) Chrome/ 57.0.2987.133 Safari / 537.36' } })
   const pageText = await response.text()
   const $ = cheerio.load(pageText)

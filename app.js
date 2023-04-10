@@ -10,7 +10,7 @@ const port = process.env.NODE_PORT || 3000
 const passport = require('./config/passport')
 const cors = require('cors')
 const corsOptions = {
-  origin: 'http://localhost',
+  origin: ['http://localhost', 'http://legal-dictionary-dev.ap-southeast-2.elasticbeanstalk.com'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowHeaders: ['Content-Type', 'Authorization']
 }
