@@ -21,7 +21,7 @@ app.use(express.json())
 app.use(cors(corsOptions))
 app.use(passport.initialize())
 
-let updateDate = '112-01-06'// json檔建立時間
+const updateDate = '112-01-06'// json檔建立時間
 updateLaw(updateDate)
 
 app.use(routes)
