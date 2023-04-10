@@ -7,7 +7,7 @@ module.exports = {
     // 爬範圍內所有刑事裁判書中引用的段落
     const judType = '刑事'
     const startDate = '111-1-1'
-    const endDate = '111-6-30'
+    const endDate = '111-12-31'
     let paragraphs = await getParagraph(judType, startDate, endDate)
    
     let result = paragraphs.map(p => {
