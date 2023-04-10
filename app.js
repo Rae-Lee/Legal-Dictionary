@@ -21,8 +21,8 @@ app.use(express.json())
 app.use(cors(corsOptions))
 app.use(passport.initialize())
 
-const updateDate = '112-01-06'// json檔建立時間
-updateLaw(updateDate)
+// const updateDate = '112-01-06'
+// updateLaw(updateDate)
 
 app.use(routes)
 app.listen(port, () => console.log(`It is listening on http://localhost:${port}`))
