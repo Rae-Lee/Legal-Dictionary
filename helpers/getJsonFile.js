@@ -1,5 +1,5 @@
 const fs = require('fs')
-const { getParagraph } = require('../helpers/seed-helpers')
+const { getParagraph } = require('./seed-helpers')
 const getJsonFile = async () => {
   const judType = '刑事'
   const startDate = '111-1-1'

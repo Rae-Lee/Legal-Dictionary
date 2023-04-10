@@ -16,7 +16,6 @@ const updateLaw = async (updateDate) => {
         links.map(
           async (link) => {
             // 請求更新內容頁面
-            console.log(link)
             const $ = await loadPage(link)
             const title = $('h2').text()
             // 制定法規

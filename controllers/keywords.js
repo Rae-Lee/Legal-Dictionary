@@ -27,8 +27,9 @@ const keywordsController = {
       const dataOffset = (currentPage - 1) * 10
       const id = req.params.id
       const element = await Element.findByPk(id)
+      console.log(element.name)
       const references = await sequelize.query(
-        'SELECT `References`.*,`Fields`.`name` AS `Field.name`,COUNT(`Quotes`.`reference_id`) AS `count` FROM `Paragraphs` JOIN `Quotes` ON `Paragraphs`.`id` = `Quotes`.`paragraph_id` JOIN `References` ON `Quotes`.`reference_id` = `References`.`id` JOIN `Fields` ON `Fields`.`id` = `References`.`field_id` WHERE `Paragraphs`.`content` LIKE "$keyword" GROUP BY `Quotes`.`reference_id` ORDER BY `count` DESC ;', {
+        'SELECT `References`.*,`Fields`.`name` AS `Field.name`,COUNT(`Quotes`.`reference_id`) AS `count` FROM `Paragraphs` JOIN `Quotes` ON `Paragraphs`.`id` = `Quotes`.`paragraph_id` JOIN `References` ON `Quotes`.`reference_id` = `References`.`id` JOIN `Fields` ON `Fields`.`id` = `References`.`field_id` WHERE `Paragraphs`.`content` LIKE $keyword GROUP BY `Quotes`.`reference_id` ORDER BY `count` DESC ;', {
           bind: { keyword: `%${element.name}%` },
           raw: true,
           nest: true
