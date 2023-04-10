@@ -8,7 +8,8 @@
     "start": "set NODE_ENV=development && node app.js",
     "test": "set NODE_ENV=travis &&  mocha tests/requests --exit --recursive --timeout 5000 ",
     "cover": "set NODE_ENV=test && c8 mocha tests/requests --exit --recursive --timeout 5000 ",
-    "migrate": "set NODE_ENV=production && npx sequelize db:migrate && npx sequelize db:seed:all"
+    "migrate": "set NODE_ENV=production && npx sequelize db:migrate && npx sequelize db:seed:all",
+    "result": "set NODE_ENV=development && node result.js"
   },
   "keywords": [],
   "author": "",

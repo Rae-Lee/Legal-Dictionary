@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+
 if (process.env.NODE_ENV.trim() === 'development') {
   require('dotenv').config()
 }
@@ -21,8 +22,9 @@ app.use(express.json())
 app.use(cors(corsOptions))
 app.use(passport.initialize())
 
-// const updateDate = '112-01-06'
-// updateLaw(updateDate)
+// 更新法條
+const updateDate = '112-01-06'
+updateLaw(updateDate)
 
 app.use(routes)
 app.listen(port, () => console.log(`It is listening on http://localhost:${port}`))

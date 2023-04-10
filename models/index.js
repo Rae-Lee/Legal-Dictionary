@@ -3,13 +3,14 @@ const fs = require('fs')
 const path = require('path')
 const Sequelize = require('sequelize')
 const process = require('process')
-if (process.env.NODE_ENV.trim() === 'development') { 
+if (process.env.NODE_ENV.trim() === 'development') {
   require('dotenv').config()
 }
 if (process.env.NODE_ENV.trim() === 'test') {
   require('dotenv').config({ path: `${process.cwd()}/.env-test` })
 }
 const basename = path.basename(__filename)
+
 const env = process.env.NODE_ENV.trim() || 'development'
 const config = require('../config/config')[env]
 const db = {}
