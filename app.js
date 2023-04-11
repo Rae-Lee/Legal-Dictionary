@@ -7,7 +7,7 @@ if (process.env.NODE_ENV.trim() === 'development') {
 if (process.env.NODE_ENV.trim() === 'test') {
   require('dotenv').config({ path: `${process.cwd()}/.env-test` })
 }
-const port = process.env.NODE_PORT || 3000
+const port = process.env.NODE_PORT || 8080
 const passport = require('./config/passport')
 const cors = require('cors')
 const corsOptions = {
