@@ -11,6 +11,7 @@ let result = paragraph.data.map(p => {
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert('Paragraphs', result, {})
+    result = null
   },
 
   async down (queryInterface, Sequelize) {
