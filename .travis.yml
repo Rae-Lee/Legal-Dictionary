@@ -11,3 +11,13 @@ before_install:
   - export JWT_SECRET_KEY=legalDictionary
 before_script:
   - sequelize db:migrate            
+deploy:
+  provider: elasticbeanstalk
+  access_key_id:
+    secure: "AKIA5OCLC7ZSUU5WKQHF"
+  secret_access_key:
+    secure: "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"
+  region: "ap-southeast-2"
+  app: "Legal-Dictionary"
+  env: "Legal-Dictionary-env"
+  bucket_name: "elasticbeanstalk-ap-southeast-2-923575451237"
