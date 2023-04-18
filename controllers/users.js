@@ -1,5 +1,5 @@
 const db = require('../models')
-const { User, Like, Element, Note } = db
+const { User, Favorite, Element, Note, sequelize } = db
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { getUser } = require('../helpers/auth-helpers')
@@ -57,7 +57,7 @@ const usersController = {
     try {
       const currentPage = req.query.page || 1
       const dataOffset = (currentPage - 1) * 10
-      const likes = await Like.findAndCountAll({
+      const likes = await Favorite.findAndCountAll({
         where: { userId: getUser(req).id },
         include: Element,
         order: [['createdAt', 'DESC']],
@@ -83,32 +83,24 @@ const usersController = {
   },
   getNotes: async (req, res, next) => {
     try {
+      const id = getUser(req).id
       const currentPage = req.query.page || 1
       const dataOffset = (currentPage - 1) * 10
-      const notes = await Note.findAndCountAll({
-        where: { userId: getUser(req).id },
-        include: Element,
-        order: [['createdAt', 'DESC']],
-        limit: dataPerPage,
-        offset: dataOffset,
-        raw: true
+      const notes = await sequelize.query('SELECT `Notes`. *, `Elements`. `id`, `Elements`. `name`,  CASE WHEN `Favorites`. `id`IS NULL THEN 1 ELSE 0 END AS `isFavorite` FROM `Notes` JOIN `Elements` ON `Notes`.`element_id`= `Elements`.`id` LEFT JOIN `Favorites` ON `Elements`.`id` = `Favorites`. `element_id` AND `Notes`.`user_id` = `Favorites`.`user_id` WHERE `Notes`.`user_id` = $userId ORDER BY `Notes`.`created_at` DESC LIMIT 10 OFFSET $dataOffset;', {
+        bind: { userId: `${id}`, dataOffset: `${dataOffset}` },
+        raw: true,
+        nest: true
       })
-      if (!notes.count) {
+      if (!notes.length) {
         return res.json({
           status: 404,
           message: '尚未有任何筆記!'
         })
       } else {
-        const results = notes.rows.map(note => {
-          return {
-            ...note,
-            relativeTime: dayjs(note.createdAt).fromNow()
-          }
-        })
         return res.json({
           status: 200,
-          data: { notes: results },
-          pagination: { currentPage, totalPage: countTotalPage(notes.count) }
+          data: { notes },
+          pagination: { currentPage, totalPage: countTotalPage(notes.length) }
         })
       }
     } catch (err) {

@@ -1,5 +1,5 @@
 const db = require('../models')
-const { Element, Search, Note, sequelize } = db
+const { Element, Search, Note, Favorite, sequelize } = db
 const dayjs = require('dayjs')
 const relativeTime = require('dayjs/plugin/relativeTime')
 dayjs.extend(relativeTime)
@@ -9,13 +9,24 @@ const dataPerPage = 10 // 一頁出現10筆資料
 const keywordsController = {
   getKeyword: async (req, res, next) => {
     try {
+      const userId = getUser(req).id
       const id = req.params.id
       const keyword = await Element.findByPk(id, {
         raw: true
       })
+      const favorite = await Favorite.findOne({ where: { elementId: id, userId } })
+      const isFavorite = () => {
+        if (favorite) {
+          return true
+        }
+        return false
+      }
       return res.json({
         status: 200,
-        data: keyword
+        data: {
+          ...keyword,
+          isFavorite: isFavorite()
+        }
       })
     } catch (err) {
       next(err)
@@ -140,6 +151,11 @@ const keywordsController = {
         return res.json({
           status: 400,
           message: ['搜尋欄不可空白！']
+        })
+      } else if (name.search(/^[\u4E00-\u9FA5]+$/) === -1) {
+        return res.json({
+          status: 400,
+          message: ['只能輸入中文字']
         })
       } else {
         // 尋找資料庫中是否已經有此關鍵字
