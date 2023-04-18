@@ -54,7 +54,7 @@ const adminController = {
           message: '不得刪除管理員帳號！'
         })
       }
-      await user.destroy()
+      await user.update({ deletedAt: new Date() })
       return res.json({
         status: 200,
         message: '已成功刪除此用戶！',

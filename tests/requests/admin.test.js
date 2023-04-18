@@ -208,7 +208,7 @@ describe('# delete user', () => {
           if (err) return done(err)
           User.findByPk(2)
             .then(user => {
-              expect(user).to.be.null
+              expect(user.deletedAt).to.not.be.null()
             })
         })
       done()
