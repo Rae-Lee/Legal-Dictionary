@@ -7,6 +7,7 @@ const validator = {
   validatedKeyword: async (req, res, next) => {
     try {
       const id = Number(req.params.id)
+      console.log(id)
       const element = await Element.findByPk(id)
       if (!element) {
         return res.json({

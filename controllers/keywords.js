@@ -9,12 +9,15 @@ const dataPerPage = 10 // 一頁出現10筆資料
 const keywordsController = {
   getKeyword: async (req, res, next) => {
     try {
-      const userId = getUser(req).id
       const id = req.params.id
       const keyword = await Element.findByPk(id, {
         raw: true
       })
-      const favorite = await Favorite.findOne({ where: { elementId: id, userId } })
+      let favorite = ''
+      if (getUser(req)) {
+        const userId = getUser(req).id
+        favorite = await Favorite.findOne({ where: { elementId: id, userId } })
+      }
       const isFavorite = () => {
         if (favorite) {
           return true
@@ -152,7 +155,7 @@ const keywordsController = {
           status: 400,
           message: ['搜尋欄不可空白！']
         })
-      } else if (name.search(/^[\u4E00-\u9FA5]+$/) === -1) {
+      } else if (!name.trim().match(/^[\u4E00-\u9FA5]+$/)) {
         return res.json({
           status: 400,
           message: ['只能輸入中文字']
