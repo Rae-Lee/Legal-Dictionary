@@ -10,6 +10,7 @@ router.get('/top', keywordsController.getTopKeywords)
 router.get('/:id/references', validatedKeyword, keywordsController.getReferences)
 router.get('/:id/articles', validatedKeyword, keywordsController.getArticles)
 router.get('/:id/notes', authenticated, authenticatedUser, validatedKeyword, keywordsController.getNotes)
+router.get('/:id/likes', authenticated, authenticatedUser, validatedKeyword, keywordsController.getKeywordFavorite)
 router.get('/:id', validatedKeyword, keywordsController.getKeyword)
 
 // 收藏

@@ -7,7 +7,7 @@ const likesController = {
       const id = req.params.id
       const keyword = await Element.findByPk(id)
       const like = await Favorite.create({
-        userId: getUser.id,
+        userId: getUser(req).id,
         elementId: keyword.id
       })
       return res.json({

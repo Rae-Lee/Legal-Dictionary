@@ -1,5 +1,5 @@
 const db = require('../models')
-const { User, Favorite, Element, Note, sequelize } = db
+const { User, Favorite, Element, sequelize } = db
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { getUser } = require('../helpers/auth-helpers')
@@ -63,7 +63,8 @@ const usersController = {
         order: [['createdAt', 'DESC']],
         limit: dataPerPage,
         offset: dataOffset,
-        raw: true
+        raw: true,
+        nest: true
       })
       if (!likes.count) {
         return res.json({

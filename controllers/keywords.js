@@ -13,23 +13,28 @@ const keywordsController = {
       const keyword = await Element.findByPk(id, {
         raw: true
       })
-      let favorite = ''
-      if (getUser(req)) {
-        const userId = getUser(req).id
-        favorite = await Favorite.findOne({ where: { elementId: id, userId } })
-      }
-      const isFavorite = () => {
-        if (favorite) {
-          return true
-        }
-        return false
+      return res.json({
+        status: 200,
+        data: keyword
+      })
+    } catch (err) {
+      next(err)
+    }
+  },
+  getKeywordFavorite: async (req, res, next) => {
+    try {
+      const id = req.params.id
+      const userId = getUser(req).id
+      const favorite = await Favorite.findOne({ where: { elementId: id, userId } })
+      if (!favorite) {
+        return res.json({
+          status: 200,
+          data: { isFavorite: false }
+        })
       }
       return res.json({
         status: 200,
-        data: {
-          ...keyword,
-          isFavorite: isFavorite()
-        }
+        data: { isFavorite: true }
       })
     } catch (err) {
       next(err)
@@ -41,7 +46,6 @@ const keywordsController = {
       const dataOffset = (currentPage - 1) * 10
       const id = req.params.id
       const element = await Element.findByPk(id)
-      console.log(element.name)
       const references = await sequelize.query(
         'SELECT `References`.*,`Fields`.`name` AS `Field.name`,COUNT(`Quotes`.`reference_id`) AS `count` FROM `Paragraphs` JOIN `Quotes` ON `Paragraphs`.`id` = `Quotes`.`paragraph_id` JOIN `References` ON `Quotes`.`reference_id` = `References`.`id` JOIN `Fields` ON `Fields`.`id` = `References`.`field_id` WHERE `Paragraphs`.`content` LIKE $keyword GROUP BY `Quotes`.`reference_id` ORDER BY `count` DESC ;', {
           bind: { keyword: `%${element.name}%` },

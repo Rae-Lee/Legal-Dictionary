@@ -11,15 +11,14 @@ const port = process.env.NODE_PORT || 8080
 const passport = require('./config/passport')
 const cors = require('cors')
 const corsOptions = {
-  origin: ['http://localhost:8080'],
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-  allowHeaders: ['Content-Type', 'Authorization']
+  origin: '*',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'
 }
 const { updateLaw } = require('./helpers/lawUpdate-helpers')
 const routes = require('./routes')
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
-app.use(cors(corsOptions))
+app.use(cors())
 app.use(passport.initialize())
 
 // 更新法條
