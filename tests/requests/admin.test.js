@@ -172,7 +172,7 @@ describe('# get all users', () => {
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
   })
 })
-describe('# delete user', () => {
+describe('# suspend user', () => {
   beforeEach(async () => {
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
     await User.destroy({ where: {}, truncate: true, force: true })
@@ -195,12 +195,12 @@ describe('# delete user', () => {
         .end((err, res) => {
           if (err) return done(err)
           expect(res.body.status).to.equal(200)
-          expect(res.body.message).to.equal('已成功刪除此用戶！')
+          expect(res.body.message).to.equal('已成功暫停此用戶！')
           expect(res.body.data.id).to.equal(2)
         })
       done()
     })
-    it('10.成功刪除資料庫資料', (done) => {
+    it('10.成功暫停資料庫資料', (done) => {
       request(app)
         .delete('/api/v1/admin/users/2')
         .set('Accept', 'application/json')
@@ -215,14 +215,14 @@ describe('# delete user', () => {
     })
   })
   context('#fail', () => {
-    it('11.刪除管理員帳號', (done) => {
+    it('11.暫停管理員帳號', (done) => {
       request(app)
         .delete('/api/v1/admin/users/1')
         .set('Accept', 'application/json')
         .end((err, res) => {
           if (err) return done(err)
           expect(res.body.status).to.equal(403)
-          expect(res.body.message).deep.to.equal('不得刪除管理員帳號！')
+          expect(res.body.message).deep.to.equal('不得暫停管理員帳號！')
         })
       done()
     })

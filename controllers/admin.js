@@ -23,7 +23,7 @@ const adminController = {
   },
   getUsers: async (req, res, next) => {
     try {
-      const users = await sequelize.query('SELECT `Users`.`account`,`Users`.`email`,COALESCE(`notes`.`noteCounts`, 0)AS `noteCounts`,COALESCE(`favorites`.`favoriteCounts`, 0)AS `favoriteCounts`FROM `Users`LEFT JOIN(SELECT `user_id`,COUNT(`id`) AS `noteCounts`FROM `Notes` GROUP BY `user_id`) AS `notes`ON `Users`.`id` = `notes`.`user_id` LEFT JOIN(SELECT `user_id`,COUNT(`id`)  AS `favoriteCounts`FROM `Favorites`GROUP BY `user_id` )AS`favorites`ON `Users`.`id` = `favorites`.`user_id` WHERE `Users`.`role` = "user"ORDER BY `noteCounts` DESC;', {
+      const users = await sequelize.query('SELECT `Users`.`id`,`Users`.`account`,`Users`.`email`,`Users`.`deleted_at`,COALESCE(`notes`.`noteCounts`, 0)AS `noteCounts`,COALESCE(`favorites`.`favoriteCounts`, 0)AS `favoriteCounts`FROM `Users`LEFT JOIN(SELECT `user_id`,COUNT(`id`) AS `noteCounts`FROM `Notes` GROUP BY `user_id`) AS `notes`ON `Users`.`id` = `notes`.`user_id` LEFT JOIN(SELECT `user_id`,COUNT(`id`)  AS `favoriteCounts`FROM `Favorites`GROUP BY `user_id` )AS`favorites`ON `Users`.`id` = `favorites`.`user_id` WHERE `Users`.`role` = "user"ORDER BY `noteCounts` DESC;', {
         raw: true,
         nest: true
       })
@@ -35,10 +35,10 @@ const adminController = {
       next(err)
     }
   },
-  deleteUser: async (req, res, next) => {
+  suspendUser: async (req, res, next) => {
     try {
       const id = req.params.id
-      const user = await User.findById(id, {
+      const user = await User.findByPk(id, {
         raw: true,
         nest: true
       })
@@ -51,14 +51,73 @@ const adminController = {
       if (user.role === 'admin') {
         return res.json({
           status: 403,
-          message: '不得刪除管理員帳號！'
+          message: '不得暫停管理員帳號！'
         })
       }
-      await user.update({ deletedAt: new Date() })
+      if (user.deletedAt) {
+        return res.json({
+          status: 403,
+          message: '此用戶已停權！'
+        })
+      }
+      const date = new Date()
+      await sequelize.query('UPDATE `Users` SET `deleted_at` = $date WHERE `id` = $id;', {
+        type: sequelize.QueryTypes.UPDATE,
+        bind: { date, id },
+        raw: true,
+        nest: true
+      })
+
       return res.json({
         status: 200,
-        message: '已成功刪除此用戶！',
-        data: user
+        message: '已成功暫停此用戶！',
+        data: {
+          ...user,
+          deletedAt: date
+        }
+      })
+    } catch (err) {
+      next(err)
+    }
+  },
+  unsuspendUser: async (req, res, next) => {
+    try {
+      const id = req.params.id
+      const user = await User.findByPk(id, {
+        raw: true,
+        nest: true
+      })
+      if (!user) {
+        return res.json({
+          status: 404,
+          message: '找不到用戶!'
+        })
+      }
+      if (user.role === 'admin') {
+        return res.json({
+          status: 403,
+          message: '不得解除管理員帳號停權狀態！'
+        })
+      }
+      if (user.deletedAt === null) {
+        return res.json({
+          status: 403,
+          message: '此用戶未遭停權！'
+        })
+      }
+      await sequelize.query('UPDATE `Users` SET `deleted_at` = null WHERE `id` = $id;', {
+        type: sequelize.QueryTypes.UPDATE,
+        bind: { id },
+        raw: true,
+        nest: true
+      })
+      return res.json({
+        status: 200,
+        message: '已成功解除此用戶停權狀態！',
+        data: {
+          ...user,
+          deletedAt: null
+        }
       })
     } catch (err) {
       next(err)
