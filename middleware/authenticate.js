@@ -81,7 +81,7 @@ const authenticate = {
   // 編輯筆記的權限
   authenticatedNote: async (req, res, next) => {
     try {
-      const id = Number(req.params.id)
+      const id = Number(req.url.substring(1, req.url.length))
       const note = await Note.findByPk(id)
       if (getUser(req).id !== note.userId) {
         return res.json({

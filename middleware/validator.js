@@ -22,7 +22,7 @@ const validator = {
   // 查找該筆記是否在資料庫
   validatedNote: async (req, res, next) => {
     try {
-      const id = Number(req.params.id)
+      const id = Number(req.url.substring(1, req.url.length))
       const note = await Note.findByPk(id)
       if (!note) {
         return res.json({

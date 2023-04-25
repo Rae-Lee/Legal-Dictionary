@@ -87,7 +87,7 @@ const usersController = {
       const id = getUser(req).id
       const currentPage = req.query.page || 1
       const dataOffset = (currentPage - 1) * 10
-      const notes = await sequelize.query('SELECT `Notes`. *, `Elements`. `id`, `Elements`. `name`,  CASE WHEN `Favorites`. `id`IS NULL THEN 1 ELSE 0 END AS `isFavorite` FROM `Notes` JOIN `Elements` ON `Notes`.`element_id`= `Elements`.`id` LEFT JOIN `Favorites` ON `Elements`.`id` = `Favorites`. `element_id` AND `Notes`.`user_id` = `Favorites`.`user_id` WHERE `Notes`.`user_id` = $userId ORDER BY `Notes`.`created_at` DESC LIMIT 10 OFFSET $dataOffset;', {
+      const notes = await sequelize.query('SELECT `Notes`. *,  `Elements`. `name` AS `elementName`,  CASE WHEN `Favorites`. `id`IS NULL THEN 0 ELSE 1 END AS `isFavorite` FROM `Notes` JOIN `Elements` ON `Notes`.`element_id`= `Elements`.`id` LEFT JOIN `Favorites` ON `Elements`.`id` = `Favorites`. `element_id` AND `Notes`.`user_id` = `Favorites`.`user_id` WHERE `Notes`.`user_id` = $userId ORDER BY `Notes`.`created_at` DESC LIMIT 10 OFFSET $dataOffset;', {
         bind: { userId: `${id}`, dataOffset: `${dataOffset}` },
         raw: true,
         nest: true
