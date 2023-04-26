@@ -143,13 +143,20 @@ const usersController = {
         const { account, name, email, password } = req.body
         const salt = await bcrypt.genSalt(10)
         const passwordHashed = await bcrypt.hash(password.trim(), salt)
-        const result = await user.update({
-          account: account.trim(),
-          name: name.trim(),
-          email: email.trim(),
-          password: passwordHashed
+        await sequelize.query('UPDATE `Users` SET `account` = $account, `name` = $name, `email` = $email, `password` = $password WHERE `id` = $id;', {
+          type: sequelize.QueryTypes.UPDATE,
+          bind: {
+            account: account.trim(),
+            name: name.trim(),
+            email: email.trim(),
+            password: passwordHashed,
+            id: getUser(req).id
+          }
         })
-        const dataUser = result.toJSON()
+        const dataUser = await User.findByPk(getUser(req).id, {
+          raw: true,
+          nest: true
+        })
         delete dataUser.password
         return res.json({
           status: 200,

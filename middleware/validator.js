@@ -155,12 +155,16 @@ const validator = {
           message.push('email 輸入錯誤!')
         }
         const userFindByEmail = await User.findOne({ where: { email: email.trim() } })
-        if (userFindByEmail.id !== getUser(req).id) {
-          message.push('email 已重複註冊!')
+        if (userFindByEmail) {
+          if (userFindByEmail.id !== getUser(req).id) {
+            message.push('email 已重複註冊!')
+          }
         }
         const userFindByAccount = await User.findOne({ where: { account: account.trim() } })
-        if (userFindByAccount.id !== getUser(req).id) {
-          message.push('帳號已重複註冊!')
+        if (userFindByAccount) {
+          if (userFindByAccount.id !== getUser(req).id) {
+            message.push('帳號已重複註冊!')
+          }
         }
       }
       if (message.length) {

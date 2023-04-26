@@ -138,7 +138,7 @@ const keywordsController = {
   getTopKeywords: async (req, res, next) => {
     try {
       const keywords = await sequelize.query(
-        'SELECT `Elements`.*,COUNT(`Searches`.`element_id`) AS `count` FROM `Elements` JOIN `Searches` ON `Elements`. `id` = `Searches`.`element_id` GROUP BY `Searches`.`element_id` ORDER BY `count` DESC LIMIT 10;', {
+        'SELECT `Elements`.*,COUNT(`Searches`.`element_id`) AS `count` FROM `Elements` JOIN `Searches` ON `Elements`. `id` = `Searches`.`element_id` GROUP BY `Searches`.`element_id` ORDER BY `count` DESC LIMIT 4;', {
           raw: true,
           nest: true
         }
