@@ -167,6 +167,30 @@ const usersController = {
     } catch (err) {
       next(err)
     }
+  },
+  getCurrentUser: async (req, res, next) => {
+    try {
+      const user = await User.findByPk(getUser(req).id, { raw: true })
+      if (getUser(req).deletedAt || user.deletedAt) {
+        return res.json({
+          status: 403,
+          message: '您的帳號已被列入黑名單中，請聯絡客服人員提供協助！'
+        })
+      }
+      if (!getUser(req)) {
+        return res.json({
+          status: 401,
+          message: '請重新登入！'
+        })
+      }
+      delete user.password
+      return res.json({
+        status: 200,
+        data: user
+      })
+    } catch (err) {
+      next(err)
+    }
   }
 }
 module.exports = usersController

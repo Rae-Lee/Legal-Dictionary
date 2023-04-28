@@ -28,13 +28,13 @@ const authenticate = {
     }
     if (!getUser(req)) {
       return res.json({
-        status: '401',
+        status: 401,
         message: '請重新登入！'
       })
     }
     if (getUser(req).role !== 'user') {
       return res.json({
-        status: '403',
+        status: 403,
         message: '沒有瀏覽及編輯的權限'
       })
     }
@@ -51,13 +51,13 @@ const authenticate = {
     }
     if (!getUser(req)) {
       return res.json({
-        status: '401',
+        status: 401,
         message: '請重新登入！'
       })
     }
     if (getUser(req).role !== 'admin') {
       return res.json({
-        status: '403',
+        status: 403,
         message: '沒有瀏覽及編輯的權限'
       })
     }

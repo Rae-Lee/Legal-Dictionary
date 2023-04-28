@@ -1,10 +1,10 @@
-'use strict';
+'use strict'
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert('Elements', [{
-      name: '毒品',
+      name: '傷害',
       created_at: new Date(),
       updated_at: new Date()
     }, {
@@ -15,10 +15,15 @@ module.exports = {
       name: '詐欺',
       created_at: new Date(),
       updated_at: new Date()
+    },
+    {
+      name: '公然侮辱',
+      created_at: new Date(),
+      updated_at: new Date()
     }], {})
   },
 
   async down (queryInterface, Sequelize) {
     await queryInterface.bulkDelete('Elements', null, {})
   }
-};
+}

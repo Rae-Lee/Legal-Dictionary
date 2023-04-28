@@ -1,5 +1,5 @@
 'use strict'
-const law = require('../ChLaw.json').Laws
+const law = require('../data/ChLaw.json').Laws
 const db = require('../models')
 const { Code } = db
 

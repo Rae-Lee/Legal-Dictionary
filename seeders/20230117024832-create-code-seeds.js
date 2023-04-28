@@ -1,5 +1,5 @@
 'use strict'
-const law = require('../ChLaw.json')
+const law = require('../data/ChLaw.json')
 let result = law.Laws.map(l => {
   if (l.LawAbandonNote === '廢') {
     return {

@@ -1,5 +1,5 @@
 'use strict'
-const reference = require('../reference.json')
+const reference = require('../data/reference.json')
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {

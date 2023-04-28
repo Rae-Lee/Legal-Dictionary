@@ -1,5 +1,5 @@
 'use strict';
-const paragraph = require('../paragraph.json')
+const paragraph = require('../data/paragraph.json')
 let result = paragraph.data.map(p => {
   return {
     ...p,
