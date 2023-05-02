@@ -1,11 +1,7 @@
 const express = require('express')
 const app = express()
-if (process.env.NODE_ENV === 'development') {
-  require('dotenv').config()
-}
-if (process.env.NODE_ENV === 'test') {
-  require('dotenv').config({ path: `${process.cwd()}/.env-test` })
-}
+require('dotenv').config()
+
 const port = process.env.NODE_PORT || 3000
 const passport = require('./config/passport')
 const cors = require('cors')

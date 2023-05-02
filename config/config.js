@@ -1,9 +1,5 @@
-if (process.env.NODE_ENV.trim() === 'development') {
-  require('dotenv').config()
-}
-if (process.env.NODE_ENV.trim() === 'test') {
-  require('dotenv').config({ path: `${process.cwd()}/.env-test` })
-}
+require('dotenv').config()
+
 module.exports = {
   development: {
     username: process.env.MYSQL_USER,
