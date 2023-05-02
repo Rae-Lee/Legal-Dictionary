@@ -10,6 +10,8 @@ module.exports = {
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE,
     host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    encoding: process.env.ENCODING,
     dialect: 'mysql'
   },
   test: {
@@ -17,6 +19,7 @@ module.exports = {
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE,
     host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     dialect: 'mysql',
     logging: false
   },

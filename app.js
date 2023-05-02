@@ -1,13 +1,12 @@
 const express = require('express')
 const app = express()
-console.log(process.env.NODE_ENV)
-if (process.env.NODE_ENV.trim() === 'development') {
+if (process.env.NODE_ENV === 'development') {
   require('dotenv').config()
 }
-if (process.env.NODE_ENV.trim() === 'test') {
+if (process.env.NODE_ENV === 'test') {
   require('dotenv').config({ path: `${process.cwd()}/.env-test` })
 }
-const port = process.env.NODE_PORT || 8080
+const port = process.env.NODE_PORT || 3000
 const passport = require('./config/passport')
 const cors = require('cors')
 const corsOptions = {
@@ -18,7 +17,7 @@ const { updateLaw } = require('./helpers/lawUpdate-helpers')
 const routes = require('./routes')
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(passport.initialize())
 
 // 更新法條

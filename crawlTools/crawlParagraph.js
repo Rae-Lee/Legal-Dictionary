@@ -4,8 +4,8 @@ const { By, until } = webdriver
 
 const crawlParagraph = async () => {
   const judType = '刑事'
-  const startDate = '111-11-16'
-  const endDate = '111-12-31'
+  const startDate = '111-1-1'
+  const endDate = '111-1-2'
   const paragraphs = await getParagraph(judType, startDate, endDate)
   const result = paragraphs.map(p => {
     return {
