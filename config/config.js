@@ -20,7 +20,7 @@ module.exports = {
     logging: false
   },
   production: {
-    use_env_variable: 'law_memo_URL',
+    use_env_variable: 'LAW_MEMO_URL',
     dialect: 'mysql',
     logging: false
   },
