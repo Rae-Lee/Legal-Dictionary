@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "dev": "set NODE_ENV=development && nodemon app.js",
-    "start": "node app.js",
+    "start": "set NODE_ENV=production && node app.js",
     "test": "set NODE_ENV=travis &&  mocha tests/requests --exit --recursive --timeout 5000 ",
     "cover": "set NODE_ENV=test && c8 mocha tests/requests --exit --recursive --timeout 5000 ",
     "migrate": "set NODE_ENV=production && npx sequelize db:migrate --env production && npx sequelize db:seed:all --env production",
