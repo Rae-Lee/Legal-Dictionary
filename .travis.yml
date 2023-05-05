@@ -19,5 +19,5 @@ deploy:
     secure: "7YzPIx9WJ1trD17ujmpPGVBR1gNNycPU6AayU069"
   region: "ap-southeast-1"
   app: "law-memo"
-  env: "law-memo-dev"
+  env: "legal-Dictionary"
   bucket_name: "elasticbeanstalk-ap-southeast-1-214072511731"
