@@ -8,7 +8,7 @@
     "start": "set NODE_ENV=production && node app.js",
     "test": "set NODE_ENV=travis &&  mocha tests/requests --exit --recursive --timeout 5000 ",
     "cover": "set NODE_ENV=test && c8 mocha tests/requests --exit --recursive --timeout 5000 ",
-    "migrate": ".node_modules/.bin/sequelize db:migrate --env production && .node_modules/.bin/sequelize db:seed:all --env production",
+    "migrate": "npx sequelize db:migrate --env production && npx sequelize db:seed:all --env production",
     "crawl": "node  -e \"require('./crawlTools/index').crawler()\" && set NODE_ENV=development && npx sequelize db:seed --seed 20230200000000-create-paragraph-seeds.js --env development && npx sequelize db:seed --seed 20230204085122-create-reference-seeds.js --env development && node  -e \"require('./crawlTools/index').finder()\" && set NODE_ENV=development && npx sequelize db:seed --seed 20230302082347-paragraph_article-seed.js --env development && set NODE_ENV=development && npx sequelize db:seed --seed 20230301131318-create-quote-seed.js --env development"
   },
   "keywords": [],

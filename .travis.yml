@@ -14,10 +14,10 @@ before_script:
 deploy:
   provider: elasticbeanstalk
   access_key_id:
-    secure: "AKIA5OCLC7ZSUU5WKQHF"
+    secure: "AKIATDV5XJTZ2D6UOOXA"
   secret_access_key:
-    secure: "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"
-  region: "ap-southeast-2"
-  app: "Legal-Dictionary"
-  env: "Legal-Dictionary-env"
-  bucket_name: "elasticbeanstalk-ap-southeast-2-923575451237"
+    secure: "7YzPIx9WJ1trD17ujmpPGVBR1gNNycPU6AayU069"
+  region: "ap-southeast-1"
+  app: "law-memo"
+  env: "law-memo-dev"
+  bucket_name: "elasticbeanstalk-ap-southeast-1-214072511731"
