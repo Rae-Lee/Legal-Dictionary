@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
-require('dotenv').config()
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
 
 const port = process.env.NODE_PORT || 8080
 const passport = require('./config/passport')
