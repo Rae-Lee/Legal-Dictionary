@@ -9,11 +9,11 @@ module.exports = {
     dialect: 'mysql'
   },
   test: {
-    username: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
+    username: 'root',
+    password: 'password',
+    database: 'law_memo_test',
+    host: '127.0.0.1',
+    port: 3306,
     dialect: 'mysql',
     logging: false
   },
