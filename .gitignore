@@ -1,7 +1,6 @@
 node_modules
 .env
 .env-test
-.travis.yml
 chromedriver.exe
 result.js
 coverage
