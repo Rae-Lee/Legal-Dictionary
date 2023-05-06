@@ -14,9 +14,9 @@ before_script:
 deploy:
   provider: elasticbeanstalk
   access_key_id:
-    secure: "AKIATDV5XJTZ2D6UOOXA"
+    secure: "AKIATDV5XJTZYGW4NISZ"
   secret_access_key:
-    secure: "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"
+    secure: "aGi3cmKG8seWa2w1V5n3RDxM0ffly4T5DgxewrRa"
   region: "ap-southeast-1"
   app: "law-memo"
   env: "legal-Dictionary"
