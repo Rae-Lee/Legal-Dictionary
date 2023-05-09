@@ -13,3 +13,4 @@ Desktop.ini
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+lawUpdate-helpers.js

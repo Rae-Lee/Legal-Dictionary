@@ -1,8 +1,4 @@
-const fetch = require('node-fetch')
-const cheerio = require('cheerio')
-const db = require('../models')
-const dns = require('dns')
-const { Code, Article } = db
+
 // 請求全國法規資料庫的最新訊息頁面
 const updateLaw = async (updateDate) => {
   const links = []
@@ -40,12 +36,6 @@ const updateLaw = async (updateDate) => {
     } catch (error) {
       console.log(error)
     }
-    // 更新時間
-    const today = new Date()
-    const year = today.getFullYear() - 1911
-    const month = (today.getMonth() + 1) >= 10 ? (today.getMonth() + 1) : ('0' + (today.getMonth() + 1))
-    const date = today.getDate() < 10 ? ('0' + today.getDate()) : today.getDate()
-    updateDate = `${year}-${month}-${date}`
   }
 }
 
