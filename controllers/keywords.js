@@ -73,6 +73,7 @@ const keywordsController = {
   getArticles: async (req, res, next) => {
     try {
       const currentPage = req.query.page || 1
+      console.log(currentPage)
       const dataOffset = (currentPage - 1) * 10
       const id = req.params.id
       const element = await Element.findByPk(id)
