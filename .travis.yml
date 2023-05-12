@@ -19,5 +19,5 @@ deploy:
     secure: $AWS_SECRET_KEY
   region: "ap-southeast-1"
   app: "law-memo"
-  env: "legal-Dictionary"
+  env: "legal-dictionary"
   bucket_name: "elasticbeanstalk-ap-southeast-1-214072511731"
