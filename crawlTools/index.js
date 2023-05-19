@@ -11,7 +11,8 @@ const crawler = async () => {
   // 將段落資料存進json檔案
   convertDataToJson(paragraphResult, './data/paragraph.json')
   // 爬裁判書段落中所引用的裁判完整內容
-  const referenceResult = await crawlReference(paragraphResult)
+  const paragraphs = require('../data/reference.json').data
+  const referenceResult = await crawlReference(paragraphs)
   // 將內容資料存進json檔案
   convertDataToJson(referenceResult, './data/reference.json')
 }
@@ -37,5 +38,5 @@ const convertDataToJson = async (result, file) => {
     }
   })
 }
-
+crawler()
 module.exports = { crawler, finder }

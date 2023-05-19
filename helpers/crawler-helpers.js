@@ -1,12 +1,17 @@
 const fetch = require('node-fetch')
 const cheerio = require('cheerio')
 const webdriver = require('selenium-webdriver')
+const chrome = require('selenium-webdriver/chrome')
 const { Builder, Browser, By, until } = webdriver
+const options = new chrome.Options()
+options.addArguments('blink-settings=imagesEnabled=false')
+options.addArguments('--disable-dev-shm-usage')
+options.addArguments('--disable-gpu')
 const dns = require('dns')
 
 const openDriver = async () => {
   try {
-    const driver = await new Builder().forBrowser(Browser.CHROME).build()
+    const driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(options).build()
     await driver.manage().window().setRect({ width: 1280, height: 800, x: 0, y: 0 })// 固定視窗大小
     return driver
   } catch (err) {
@@ -17,7 +22,8 @@ const openDriver = async () => {
 const submitSearchPage = async (driver) => {
   try {
     // 送出查詢
-    const submitBtn = await driver.wait(until.elementLocated(By.name('ctl00$cp_content$btnQry')), 3000)
+    const time = Math.floor(Math.random() * 4000) + 1000
+    const submitBtn = await driver.wait(until.elementLocated(By.name('ctl00$cp_content$btnQry')), time)
     submitBtn.click()
     // 檢查是否成功跳轉
     await driver.wait(until.elementLocated(By.xpath('//*[@id="form1"]/div[3]/div/div[1]/div')), 5000)
@@ -59,10 +65,11 @@ const processVerditType = (judType) => {
 const inputVerdit = async (driver, judXpath, startDate, endDate) => {
   try {
     // 勾選裁判類型
-    const category = await driver.wait(until.elementLocated(By.xpath(judXpath)), 3000)
+    const time = Math.floor(Math.random() * 3000) + 1000
+    const category = await driver.wait(until.elementLocated(By.xpath(judXpath)), time)
     category.click()
     // 輸入裁判期間
-    const dateStart = await driver.wait(until.elementLocated(By.name('dy1')), 3000)
+    const dateStart = await driver.wait(until.elementLocated(By.name('dy1')), time)
     dateStart.sendKeys(startDate[0])
     await driver.findElement(By.name('dm1')).sendKeys(startDate[1])
     await driver.findElement(By.name('dd1')).sendKeys(startDate[2])
@@ -76,10 +83,11 @@ const inputVerdit = async (driver, judXpath, startDate, endDate) => {
 // 輸入被引用的案件
 const inputSingleVerdit = async (driver, judXpath, judYear, judCase, judNo) => {
   try {
-    const category = await driver.wait(until.elementLocated(By.xpath(judXpath)), 3000)
+    const time = Math.floor(Math.random() * 3000) + 1000
+    const category = await driver.wait(until.elementLocated(By.xpath(judXpath)), time)
     category.click()
     // 輸入裁判字號
-    const judgeYear = await driver.wait(until.elementLocated(By.name('jud_year')), 5000)
+    const judgeYear = await driver.wait(until.elementLocated(By.name('jud_year')), time)
     judgeYear.sendKeys(judYear)
     await driver.findElement(By.name('jud_case')).sendKeys(judCase)
     await driver.findElement(By.name('jud_no')).sendKeys(judNo)

@@ -1,12 +1,13 @@
 const { openDriver, processVerditName, processVerditType, inputSingleVerdit, submitSearchPage, loadPage } = require('../helpers/crawler-helpers')
 const webdriver = require('selenium-webdriver')
-const { By } = webdriver
+const { By} = webdriver
 const db = require('../models')
 const { Reference, Field } = db
 const crawlReference = async (paragraphs) => {
   // 爬被引用的裁判書內容
   const output = []
   for (const paragraph of paragraphs) {
+    console.log(paragraph.content)
     // 被引用的裁判書名稱及類型
     const judType = '刑事'
     const referenceNames = paragraph.content.match(/\d{2,3}[\u4e00-\u9fa5]{5,7}\d+[\u4e00-\u9fa5]/g)
@@ -33,6 +34,12 @@ const crawlReference = async (paragraphs) => {
               // 被引用的段落
               const quote = await getReferenceQuote(paragraph, result)
               // 資料存到output
+              await Reference.create({
+                fieldId: field.id,
+                content: result.content,
+                quote,
+                name: result.name
+              })
               output.push({
                 field_id: field.id,
                 content: result.content,
@@ -54,16 +61,16 @@ const getReference = async (judType, referenceName) => {
   const result = {}
   const driver = await openDriver()
   if (driver) {
-    // 打開裁判書查詢網頁
+    const time = Math.floor(Math.random() * 4000) + 1000
     await driver.get('https://judgment.judicial.gov.tw/FJUD/Default_AD.aspx')
-    await driver.sleep(3000)
+    await driver.sleep(time)
     const { judYear, judCase, judNo } = processVerditName(referenceName)
     const judXpath = processVerditType(judType)
     await inputSingleVerdit(driver, judXpath, judYear, judCase, judNo)
     const isOpen = await submitSearchPage(driver)
     if (isOpen) {
       // 爬裁判書的名稱及連結
-      await driver.sleep(3000)
+      await driver.sleep(time)
       await driver.switchTo().frame(driver.findElement(By.name('iframe-data')))
       const names = await driver.findElements(By.id('hlTitle'))
       let contentSliced
@@ -78,8 +85,9 @@ const getReference = async (judType, referenceName) => {
             contentSliced = '裁判書因年代久遠，故無文字檔'
           } else {
             // 打開連結並爬判決書內容
+            console.log(link)
             const $ = await loadPage(link)
-            const content = $('.tab_content').html()
+            const content = await $('.tab_content').html()
             if (content) {
               contentSliced = content.slice(0, content.lastIndexOf('日') + 1)
               break
@@ -95,6 +103,8 @@ const getReference = async (judType, referenceName) => {
       driver.quit()
       result.name = referenceName
       result.content = contentSliced
+      console.log(result.name)
+      console.log(result.content)
     }
   }
   return result
@@ -137,20 +147,29 @@ const getReferenceField = async (result) => {
   }
   return field
 }
-// 被引用的段落
+// 找出判決內容與引用段落重疊的部分(quote)
 const getReferenceQuote = async (paragraph, result) => {
-  let quote = paragraph.content
+  let quote = ''// 宣告重疊的部分
   if (result.content !== '裁判書因年代久遠，故無文字檔' && result.content !== '本件為依法不得公開或須去識別化後公開之案件') {
-    const endIndex = paragraph.content.lastIndexOf('（')// 被引用的段落結尾
-    const resultContent = result.content.replace(/[^\u4e00-\u9fa5]/g, '')
-    const paragraphSplits = paragraph.content.split(/[\uff08|\uff09|\u3008|\u3009|\u300a|\u300b|\u300c\u300d|\u300e|\u300f|\ufe43|\ufe44|\u3014|\u3015|\u2026|\u2014|\uff5e|\ufe4f|	\u3001|\u3010|\u3011|\uff0c|\u3002|\uff1f|\uff01|\uff1a|\uff1b|\u201c|\u201d|\u2018|\u2019]/)
-    for (const paragraphSplit of paragraphSplits) {
-      // 查找被引用裁判書內容與引用段落相同之處
-      const htmlStartSliced = paragraphSplit.replace(/<abbr[^\u4e00-\u9fa5]+>/g, '')
-      const htmlEndSliced = htmlStartSliced.replaceAll('</abbr>', '')
-      if (resultContent.includes(htmlEndSliced)) {
-        const startIndex = paragraph.content.search(paragraphSplit)// 被引用的段落開頭
-        quote = paragraph.content.slice(startIndex, endIndex) + '。'
+    // 判決內容整理
+    let reference
+    reference = result.content.replace(/<abbr[^\u4e00-\u9fa5]+>/g, '')
+    reference = reference.replaceAll('</abbr>', '')
+    reference = reference.replace(/\s/g, '')
+    // 段落文字整理
+    let paragraphs
+    paragraphs = paragraph.content.replace(/<abbr[^\u4e00-\u9fa5]+>/g, '')
+    paragraphs = paragraphs.replaceAll('</abbr>', '')
+    // 將段落依標點符號分成數段句子
+    const paragraphSplits = paragraphs.split(/[\u3002|\uff0c|\uff08|\uff09]/)
+    // 查找裁判書內容與引用段落相同之處
+    for (const paragraph of paragraphSplits) {
+      // 若是有一致的句子則將那段落加入quote的變數中
+      const index = reference.indexOf(paragraph)
+      if (index !== -1) {
+        const start = reference.lastIndexOf('。', index) + 1
+        const end = reference.indexOf('。', index) + 1
+        quote = reference.slice(start, end)
         break
       }
     }

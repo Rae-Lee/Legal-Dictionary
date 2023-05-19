@@ -24,7 +24,8 @@ const getParagraph = async (judType, startDate, endDate) => {
   if (driver) {
     // 打開裁判書查詢網頁
     await driver.get('https://judgment.judicial.gov.tw/FJUD/Default_AD.aspx')
-    await driver.sleep(3000)
+    const time = Math.floor(Math.random() * 4000) + 2000
+    await driver.sleep(time)
     //  輸入搜尋條件
     const judXpath = processVerditType(judType)
     const s_date = startDate.split('-')
