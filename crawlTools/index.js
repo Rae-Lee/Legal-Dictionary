@@ -19,9 +19,9 @@ const crawler = async () => {
 
 // 待paragraph、reference及article加入db後再整理裁判書段落中有關法條的索引對照
 const finder = async () => {
-  // const paragraphArticleResult = await findParagraphArticle()
+  const paragraphArticleResult = await findParagraphArticle()
   // 將資料存進json檔案
-  // convertDataToJson(paragraphArticleResult, './data/paragraphArticle.json')
+  convertDataToJson(paragraphArticleResult, './data/paragraphArticle.json')
   const quoteResult = await findQuote()
   // 將資料存進json檔案
   convertDataToJson(quoteResult, './data/quote.json')
