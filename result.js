@@ -1,17 +1,20 @@
+process.env.NODE_ENV = 'development'
 const fs = require('fs')
 const db = require('./models')
-const { Quote } = db
+const { Reference } = db
 const answer = async () => {
-  const result = await Quote.findAll({ attributes: ['paragraphId', 'referenceId'], raw: true, nest: true })
+  const result = await Reference.findAll({ attributes: ['name', 'content', 'quote', 'fieldId'], raw: true, nest: true })
   const results = result.map(r => {
     return {
-      paragraph_id: r.paragraphId,
-      reference_id: r.referenceId
+      name: r.name,
+      content: r.content,
+      quote: r.quote,
+      field_id: r.fieldId
     }
   })
   const json = JSON.stringify(results)
   const data = `{"data":${json}}`
-  fs.writeFile('./data/quote.json', data, function (err) {
+  fs.writeFile('./data/reference.json', data, function (err) {
     if (err) { console.log(err) } else { console.log('Write operation complete.') }
   })
 }
