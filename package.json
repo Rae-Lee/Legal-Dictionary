@@ -8,7 +8,7 @@
     "start": "set NODE_ENV=production && node app.js",
     "test": "set NODE_ENV=travis &&  mocha tests/requests --exit --recursive --timeout 5000 ",
     "cover": "set NODE_ENV=test && c8 mocha tests/requests --exit --recursive --timeout 5000 ",
-    "migrate": "set NODE_ENV=production && npx sequelize db:migrate --env production && npx sequelize db:seed:all --env production"
+    "migrate": "set NODE_ENV=production  && npx sequelize db:seed:undo --seed  20230301131318-create-quote-seed.js --env production && npx sequelize db:migrate:undo --name 20230112165955-create-quote.js --env production "
   },
   "keywords": [],
   "author": "",
