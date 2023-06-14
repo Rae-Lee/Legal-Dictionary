@@ -104,7 +104,7 @@ npm run test
 ```
 
 ## ERD
-![](/erd.PNG)
+![](/erd.png)
 
 ## API DOC
 
